@@ -1168,3 +1168,5 @@ h1, .h1, .display { line-height:1.05 !important; }
 @media (min-width: 1024px) { body .status { font-size:.78rem; } }
 
 .chart .volume-bar { fill: var(--chart-1); opacity:.16; }
+
+.stat-strip--meta .v { font-size:1rem; line-height:1.2; letter-spacing:-.015em; }
