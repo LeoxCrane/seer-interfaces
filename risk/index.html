@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Seer Risk: comparable DeFi risk estimates across four risk types and three time horizons.">
+  <meta name="theme-color" content="#101013">
+  <title>Seer Risk: Estimates to compare, not a rating</title>
+  <script>try{var t=localStorage.getItem('seer-theme');if(t==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="icon" href="../logo/favicon.png" type="image/png">
+  <link rel="stylesheet" href="../shared/shared.css?v=37">
+  <style>
+    body { padding-bottom:5.375rem; }
+    .risk-head { padding-block: clamp(44px, 5.6vw, 72px) 30px; border-bottom: 1px solid var(--line); }
+    .risk-head-grid { display: grid; grid-template-columns:minmax(0, 1.3fr) minmax(18.75rem, .7fr); gap:clamp(2rem, 5vw, 4.5rem); align-items: end; }
+    .risk-head h1 { max-width:13ch; margin-top:1.25rem; }
+    .risk-head .lede { margin-top:1.25rem; max-width:54ch; }
+    .decision-note { border: 1px solid var(--line-strong); border-radius:var(--r-lg); padding:1.125rem; background: var(--card); position: relative; overflow: hidden; }
+    .decision-note::before { content: ""; position: absolute; left:0; top:0; bottom:0; width:.125rem; background: var(--primary); }
+    .decision-note p { font-size:.9375rem; line-height:1.45; letter-spacing:-.015em; margin-top:.625rem; }
+    .decision-note .foot { display: flex; justify-content: space-between; gap:.75rem; margin-top:1rem; padding-top:.6875rem; border-top: 1px solid var(--line); }
+
+    .risk-meta { display: grid; grid-template-columns:repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+    .risk-meta div { padding:.9375rem 1.25rem .9375rem 0; border-right: 1px solid var(--line); }
+    .risk-meta div + div { padding-left:1.25rem; }
+    .risk-meta div:last-child { border-right: 0; }
+    .risk-meta .v { margin-top:.3125rem; font-size:.8125rem; color: var(--text); font-weight: 500; }
+
+    .risk-main { padding-block: 24px 44px; }
+    .matrix-panel { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; }
+    .matrix-controls { display: flex; flex-wrap: wrap; gap:.5rem; align-items: center; padding:.6875rem .75rem; border-bottom: 1px solid var(--line); }
+    .matrix-controls .search-field { flex:1 1 12.5rem; height:2.25rem; min-width:0; }
+    .matrix-controls .select { height:2.25rem; font-size:.6875rem; }
+    .matrix-controls .chip-tab { height:1.875rem; font-size:.625rem; }
+    .matrix-note { display: flex; justify-content: space-between; align-items: center; gap:.75rem; padding:.5rem .8125rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .matrix-scroll { overflow-x: auto; }
+    .risk-matrix { min-width:51.25rem; }
+    .risk-matrix-head, .risk-row { display: grid; grid-template-columns:12.5rem repeat(4, minmax(7rem, 1fr)) 6.5rem; gap:0; align-items: stretch; }
+    .risk-matrix-head { border-bottom: 1px solid var(--line); background: var(--surface); }
+    .risk-matrix-head > * { padding:.625rem .625rem; font-family: var(--font-mono); font-size:.5312rem; letter-spacing:.06em; text-transform: uppercase; color: var(--muted); text-align: left; border-right: 1px solid var(--line); }
+    .risk-matrix-head > *:last-child { border-right: 0; text-align: right; }
+    .risk-matrix-head button { border: 0; cursor: pointer; background: transparent; height:auto; border-right: 1px solid var(--line); }
+    .risk-matrix-head button:hover { color: var(--text); background: var(--card); }
+    .risk-matrix-head button[data-active="true"] { color: var(--violet-text); }
+    .risk-matrix-head .sort-mark { color: var(--violet-text); margin-left:.1875rem; }
+    .risk-row { border-bottom: 1px solid var(--line); }
+    .risk-row:last-child { border-bottom: 0; }
+    .risk-row:hover { background: color-mix(in srgb, var(--surface) 60%, transparent); }
+    .risk-row > * { border-right: 1px solid var(--line); }
+    .risk-row > *:last-child { border-right: 0; }
+    .protocol-cell { display: flex; align-items: center; gap:.5625rem; padding:.5rem .625rem; min-width:0; }
+    .protocol-cell .mark { width:1.25rem; height:1.25rem; flex:none; border-radius:.3125rem; border: 1px solid var(--line-strong); display: grid; place-items: center; font-family: var(--font-mono); font-size:.4375rem; color: var(--text-2); background: var(--surface); }
+    .protocol-cell .p-name { font-size:.7812rem; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .protocol-cell .p-sub { font-size:.5625rem; color: var(--text-2); margin-top:.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .protocol-cell .cmp { margin-left:auto; flex:none; width:1.125rem; height:1.125rem; border-radius:.25rem; border: 1px solid var(--line-strong); background: transparent; display: grid; place-items: center; color: transparent; }
+    .protocol-cell .cmp[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .protocol-cell .cmp svg { width:.625rem; height:.625rem; }
+    .risk-cell { position: relative; padding:0; border: 0; border-right: 1px solid var(--line); background: transparent; text-align: left; cursor: pointer; min-height:3.375rem; display: flex; flex-direction: column; justify-content: center; padding:.4375rem .625rem; transition: opacity 140ms, filter 140ms; }
+    .risk-cell:hover { filter: brightness(1.14); }
+    .risk-cell.is-dim { opacity: .3; }
+    .risk-cell.is-selected { box-shadow: inset 0 0 0 1px var(--text); }
+    .risk-cell .heat { position: absolute; inset:.1875rem; border-radius:.25rem; background: transparent; z-index: 0; }
+    .risk-cell[data-step="0"] .heat { background: color-mix(in srgb, var(--primary) 6%, transparent); }
+    .risk-cell[data-step="1"] .heat { background: color-mix(in srgb, var(--primary) 13%, transparent); }
+    .risk-cell[data-step="2"] .heat { background: color-mix(in srgb, var(--primary) 23%, transparent); }
+    .risk-cell[data-step="3"] .heat { background: color-mix(in srgb, var(--primary) 37%, transparent); }
+    .risk-cell[data-step="4"] .heat { background: color-mix(in srgb, var(--primary) 56%, transparent); }
+    .risk-cell[data-step="5"] .heat { background: var(--primary); }
+    .risk-cell[data-step="0"] { background: color-mix(in srgb, var(--primary) 6%, var(--card)); }
+    .risk-cell[data-step="1"] { background: color-mix(in srgb, var(--primary) 13%, var(--card)); }
+    .risk-cell[data-step="2"] { background: color-mix(in srgb, var(--primary) 23%, var(--card)); }
+    .risk-cell[data-step="3"] { background: color-mix(in srgb, var(--primary) 37%, var(--card)); }
+    .risk-cell[data-step="4"] { background: color-mix(in srgb, var(--primary) 56%, var(--card)); }
+    .risk-cell[data-step="5"] { background: var(--primary); }
+    .risk-cell .heat { display:none; }
+    .risk-cell .inner { position: relative; z-index: 1; display: flex; align-items: baseline; justify-content: space-between; gap:.375rem; }
+    .risk-cell .v { font-family: var(--font-mono); font-size:.9375rem; font-weight: 500; letter-spacing:-.03em; font-variant-numeric: tabular-nums; }
+    .risk-cell .b { font-family: var(--font-mono); font-size:.5rem; color: var(--text-2); font-weight: 500; }
+    .risk-cell[data-step="3"] .v, .risk-cell[data-step="3"] .b,
+    .risk-cell[data-step="4"] .v, .risk-cell[data-step="4"] .b,
+    .risk-cell[data-step="5"] .v, .risk-cell[data-step="5"] .b { color:#f5f8fb; }
+    [data-theme="light"] .risk-cell .v, [data-theme="light"] .risk-cell .b { color: var(--text); }
+    [data-theme="light"] .risk-cell[data-step="5"] .v, [data-theme="light"] .risk-cell[data-step="5"] .b { color:#fff; }
+    [data-theme="light"] .risk-cell[data-step="4"] .v, [data-theme="light"] .risk-cell[data-step="4"] .b { color: var(--text); }
+    .depth-cell { text-align: right; padding:.5rem .625rem; font-family: var(--font-mono); font-size:.5625rem; color: var(--text-2); display: flex; flex-direction: column; justify-content: center; }
+    .depth-cell span { font-size:.4375rem; color: var(--muted); margin-top:.125rem; }
+    .matrix-foot { display: flex; justify-content: space-between; gap:1rem; align-items: center; padding:.625rem .8125rem; border-top: 1px solid var(--line); flex-wrap: wrap; }
+    .heat-legend { display: flex; align-items: center; gap:.25rem; font-family: var(--font-mono); font-size:.5rem; color: var(--muted); }
+    .heat-legend i { width:1rem; height:.4375rem; border-radius:.125rem; background: transparent; }
+    .heat-legend i[data-step="0"] { background: color-mix(in srgb, var(--primary) 6%, transparent); }
+    .heat-legend i[data-step="1"] { background: color-mix(in srgb, var(--primary) 13%, transparent); }
+    .heat-legend i[data-step="2"] { background: color-mix(in srgb, var(--primary) 23%, transparent); }
+    .heat-legend i[data-step="3"] { background: color-mix(in srgb, var(--primary) 37%, transparent); }
+    .heat-legend i[data-step="4"] { background: color-mix(in srgb, var(--primary) 56%, transparent); }
+    .heat-legend i[data-step="5"] { background: var(--primary); }
+
+    .compare-empty { display: flex; align-items: center; justify-content: space-between; gap:1rem; margin-top:.875rem; padding:.75rem .875rem; border: 1px dashed var(--line-strong); border-radius:var(--r-lg); background: color-mix(in srgb, var(--card) 55%, transparent); flex-wrap: wrap; }
+    .compare-empty p { font-size:.7188rem; color: var(--text-2); margin-top:.1875rem; }
+    .compare-empty .btn { opacity: .45; }
+    .risk-detail { display: grid; grid-template-columns:minmax(0, 1.4fr) minmax(18.75rem, .6fr); gap:1.25rem; margin-top:1.25rem; align-items: start; }
+    .detail-main { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; }
+    .detail-head { display: flex; justify-content: space-between; gap:.875rem; padding:.875rem 1rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .detail-head h2 { font-size:1.375rem; letter-spacing:-.025em; }
+    .detail-head .sub { font-size:.75rem; color: var(--text-2); margin-top:.25rem; font-weight: 500; }
+    .detail-estimate { display: flex; align-items: flex-end; justify-content: space-between; gap:1rem; padding:1rem; border-bottom: 1px solid var(--line); }
+    .detail-estimate .big { font-size:3.5rem; line-height:.9; letter-spacing:-.06em; font-variant-numeric: tabular-nums; }
+    .detail-estimate .big small { font-size:1rem; color: var(--muted); }
+    .detail-estimate .band { font-family: var(--font-mono); font-size:.6562rem; color: var(--text-2); line-height:1.7; text-align: right; }
+    .detail-estimate .band b { display: block; color: var(--text); font-weight: 500; font-size:.75rem; }
+    .detail-body { display: grid; grid-template-columns:minmax(0, 1.1fr) minmax(12.5rem, .9fr); gap:0; }
+    .detail-chart { padding:.625rem .875rem .625rem; border-right: 1px solid var(--line); min-width:0; }
+    .detail-chart .chart-head { display: none; }
+    .detail-chart .chart-caption { display: none; }
+    .detail-facts { padding:.75rem .9375rem; display: grid; gap:.625rem; align-content: start; }
+    .detail-facts .fact { padding-bottom:.5625rem; border-bottom: 1px solid var(--line); }
+    .detail-facts .fact:last-child { border-bottom: 0; padding-bottom:0; }
+    .detail-facts .k { font-family: var(--font-mono); font-size:.5312rem; letter-spacing:.08em; text-transform: uppercase; color: var(--muted); }
+    .detail-facts .v { margin-top:.25rem; font-size:.7188rem; line-height:1.55; color: var(--text-2); font-weight: 500; }
+    .detail-facts .v b { color: var(--text); font-weight: 500; }
+    .detail-question { padding:.8125rem 1rem; border-top: 1px solid var(--line); font-size:.75rem; line-height:1.55; color: var(--text-2); background: var(--surface); }
+    .detail-question b { color: var(--text); font-weight: 500; }
+
+    .derive { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); padding:1rem; }
+    .derive h3 { font-size:1rem; letter-spacing:-.02em; }
+    .derive ol { margin-top:.8125rem; display: grid; gap:.625rem; counter-reset: step; }
+    .derive li { display: grid; grid-template-columns:1.375rem 1fr; gap:.5rem; font-size:.7188rem; line-height:1.55; color: var(--text-2); font-weight: 500; }
+    .derive li::before { counter-increment: step; content: "0" counter(step); font-family: var(--font-mono); font-size:.5rem; color: var(--violet-text); padding-top:.0625rem; }
+    .derive .persistent { margin-top:1rem; padding-top:.75rem; border-top: 1px solid var(--line); font-size:.6875rem; line-height:1.55; color: var(--violet-text); font-weight: 500; }
+
+    .compare-tray { position: fixed; left:50%; transform: translateX(-50%); bottom:.875rem; z-index: 70; width:min(67.5rem, calc(100vw - 1.75rem)); background: color-mix(in srgb, var(--card) 94%, transparent); backdrop-filter: blur(16px); border: 1px solid var(--line-strong); border-radius:.875rem; box-shadow: 0 24px 70px -30px rgba(0,0,0,.85); }
+    .tray-inner { display: flex; align-items: center; gap:.625rem; padding:.5625rem .75rem; flex-wrap: wrap; }
+    .tray-chips { display: flex; gap:.3125rem; flex:1 1 18.75rem; flex-wrap: wrap; min-width:0; }
+    .tray-chip { display: inline-flex; align-items: center; gap:.3125rem; height:1.625rem; padding:0 .375rem 0 .5rem; border: 1px solid var(--line); border-radius:var(--r-pill); background: var(--surface); font-size:.625rem; color: var(--text-2); }
+    .tray-chip button { border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; padding:0; }
+    .tray-chip button:hover { color: var(--text); }
+    .tray-empty { font-size:.625rem; color: var(--muted); padding-left:.125rem; }
+    .tray-actions { display: flex; gap:.5rem; align-items: center; margin-left:auto; }
+    .tray-count { font-family: var(--font-mono); font-size:.5312rem; color: var(--muted); }
+
+    .drawer { position: fixed; inset:0; z-index: 100; display: grid; place-items: end; }
+    .drawer[hidden] { display: none; }
+    .drawer-backdrop { position: absolute; inset:0; background: rgba(4,3,8,.66); backdrop-filter: blur(4px); }
+    .drawer-panel { position: relative; width:min(53.75rem, 100vw); height:100%; background: var(--bg); border-left: 1px solid var(--line-strong); padding:1.25rem; overflow: auto; animation: drawerIn 280ms var(--ease); }
+    @keyframes drawerIn { from { transform: translateX(40px); opacity: 0; } }
+    .drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap:1rem; padding-bottom:.875rem; border-bottom: 1px solid var(--line); }
+    .drawer-head h2 { font-size:1.625rem; letter-spacing:-.04em; }
+    .drawer-close { width:2rem; height:2rem; border: 1px solid var(--line); border-radius:50%; background: transparent; color: var(--text-2); display: grid; place-items: center; }
+    .drawer-section { padding-top:1.125rem; }
+    .drawer-section h3 { font-size:.8125rem; margin-bottom:.625rem; }
+    .compare-chart { border: 1px solid var(--line); border-radius:.75rem; padding:.625rem; background: var(--card); }
+    .compare-table { width:100%; border-collapse: collapse; font-size:.625rem; }
+    .compare-table th, .compare-table td { text-align: right; padding:.5rem .375rem; border-bottom: 1px solid var(--line); }
+    .compare-table th:first-child, .compare-table td:first-child { text-align: left; }
+    .compare-table th { font-family: var(--font-mono); font-size:.4688rem; letter-spacing:.06em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+    .compare-table td { color: var(--text-2); font-family: var(--font-mono); font-size:.5625rem; }
+    .compare-table td:first-child { font-family: var(--font-ui); font-size:.6875rem; color: var(--text); }
+
+    .risk-loading { padding:.625rem; display: grid; gap:.375rem; }
+    .risk-loading .skeleton { height:2.75rem; border-radius:.25rem; }
+
+    @media (max-width: 1180px) {
+      .risk-matrix-head, .risk-row { grid-template-columns:11.25rem repeat(4, minmax(6.25rem, 1fr)) 5.625rem; }
+      .risk-detail { grid-template-columns:1fr 18.75rem; }
+    }
+    @media (max-width: 980px) {
+      .risk-head-grid { grid-template-columns:1fr; align-items: start; }
+      .risk-meta { grid-template-columns:1fr 1fr; }
+      .risk-meta div:nth-child(2) { border-right: 0; }
+      .risk-meta div:nth-child(n+3) { border-top: 1px solid var(--line); }
+      .risk-detail { grid-template-columns:1fr; }
+      .detail-body { grid-template-columns:1fr; }
+      .detail-chart { border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 680px) {
+      body { padding-bottom:6.625rem; }
+      .risk-head { padding-top:2.125rem; }
+      .risk-meta { grid-template-columns:1fr 1fr; }
+      .risk-meta div { padding:.75rem .75rem .75rem 0; }
+      .risk-meta div + div { padding-left:.75rem; }
+      .matrix-controls { gap:.3125rem; }
+      .risk-matrix { min-width:45rem; }
+      .risk-matrix-head, .risk-row { grid-template-columns:10rem repeat(4, minmax(5.625rem, 1fr)) 4.75rem; }
+      .detail-estimate .big { font-size:2.75rem; }
+      .compare-tray { bottom:.5rem; width:calc(100vw - 1rem); }
+      .tray-inner { padding:.5rem; gap:.375rem; }
+      .tray-chips { flex-basis:100%; }
+      .tray-actions { width:100%; justify-content: space-between; }
+      .drawer-panel { padding:.875rem; }
+    }
+
+    @media (min-width: 1024px) {
+      body[data-page="risk"] .protocol-cell .mark,
+      body[data-page="risk"] .protocol-cell .p-sub,
+      body[data-page="risk"] .risk-cell .b,
+      body[data-page="risk"] .risk-cell .h,
+      body[data-page="risk"] .depth-cell span,
+      body[data-page="risk"] .heat-legend,
+      body[data-page="risk"] .matrix-note,
+      body[data-page="risk"] .detail-head .sub,
+      body[data-page="risk"] .detail-facts .k,
+      body[data-page="risk"] .detail-question,
+      body[data-page="risk"] .derive li,
+      body[data-page="risk"] .derive .persistent,
+      body[data-page="risk"] .compare-empty p,
+      body[data-page="risk"] .compare-table th { font-size:.78rem; line-height:1.45; }
+      body[data-page="risk"] .protocol-cell .p-name { font-size:.85rem; }
+      body[data-page="risk"] .depth-cell,
+      body[data-page="risk"] .detail-facts .v,
+      body[data-page="risk"] .compare-table td { font-size:.8rem; }
+      body[data-page="risk"] .detail-estimate .band { font-size:.78rem; }
+      body[data-page="risk"] .detail-estimate .band b { font-size:.8rem; }
+      body[data-page="risk"] .risk-meta .v { font-size:.8rem; }
+      body[data-page="risk"] .chip-tab,
+      body[data-page="risk"] .select,
+      body[data-page="risk"] .btn,
+      body[data-page="risk"] .btn-sm { font-size:.8rem; }
+    }
+  </style>
+</head>
+<body data-page="risk">
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="risk-head">
+      <div class="wrap">
+        <div class="risk-head-grid">
+          <div>
+            <p class="eyebrow">Risk / Comparison</p>
+            <h1 class="h1">Risk, in<br><span class="accent">comparable units.</span></h1>
+            <p class="lede">Market estimates across four risk types and three time horizons. Compare protocols side by side, with the underlying market, liquidity and derivation attached to every number.</p>
+          </div>
+          <aside class="decision-note">
+            <div class="micro">Decision support / not a rating</div>
+            <p>Estimates to compare. <strong style="font-weight:500">Not a rating, score or advice.</strong></p>
+            <div class="foot"><span class="micro">14 protocols · 4 risk types</span><span class="micro">Illustrative data</span></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="stat-strip" aria-label="Risk matrix details">
+        <div class="stat"><div class="k"><span class="micro">Protocols</span></div><div class="v">14 DeFi protocols</div></div>
+        <div class="stat"><div class="k"><span class="micro">Risk types</span></div><div class="v">4 comparable estimates</div></div>
+        <div class="stat"><div class="k"><span class="micro">Horizons</span></div><div class="v">30 · 90 · 365 days</div></div>
+        <div class="stat"><div class="k"><span class="micro">Underlying markets</span></div><div class="v">168 estimates</div></div>
+      </div>
+    </div>
+
+    <section class="risk-main">
+      <div class="wrap">
+        <section class="matrix-panel" aria-labelledby="matrix-title">
+          <div class="matrix-controls">
+            <label class="search-field">
+              <span aria-hidden="true" id="risk-search-icon"></span>
+              <input id="risk-search" type="search" placeholder="Find a protocol…" aria-label="Search protocols">
+            </label>
+            <div class="segmented" id="horizon-tabs" role="group" aria-label="Time horizon">
+              <button type="button" data-horizon="30" aria-pressed="false">30 days</button>
+              <button type="button" data-horizon="90" aria-pressed="true">90 days</button>
+              <button type="button" data-horizon="365" aria-pressed="false">365 days</button>
+            </div>
+            <div class="chip-tabs" id="risk-tabs" role="group" aria-label="Highlight risk type">
+              <button class="chip-tab" type="button" data-risk="All" aria-pressed="true">All risks</button>
+              <button class="chip-tab" type="button" data-risk="exploit" aria-pressed="false">Exploit</button>
+              <button class="chip-tab" type="button" data-risk="depeg" aria-pressed="false">Depeg</button>
+              <button class="chip-tab" type="button" data-risk="governance" aria-pressed="false">Governance</button>
+              <button class="chip-tab" type="button" data-risk="oracle" aria-pressed="false">Oracle</button>
+            </div>
+            <select class="select" id="chain-filter" aria-label="Filter by chain">
+              <option value="All">All chains</option>
+              <option value="Ethereum">Ethereum</option>
+              <option value="Avalon">Avalon</option>
+              <option value="Hyperion">Hyperion</option>
+            </select>
+          </div>
+          <div class="matrix-note">
+            <span class="micro" id="matrix-title">Estimate / uncertainty band · <span id="horizon-label">90D horizon</span></span>
+            <span class="micro" id="matrix-count">14 protocols</span>
+          </div>
+          <div class="matrix-scroll">
+            <div class="risk-matrix" role="table" aria-label="Risk estimates by protocol and risk type">
+              <div class="risk-matrix-head" role="row">
+                <button type="button" data-sort="name" role="columnheader">Protocol <span class="sort-mark" data-mark="name"></span></button>
+                <button type="button" data-sort="exploit" role="columnheader">Smart contract exploit <span class="sort-mark" data-mark="exploit"></span></button>
+                <button type="button" data-sort="depeg" role="columnheader">Stablecoin depeg <span class="sort-mark" data-mark="depeg"></span></button>
+                <button type="button" data-sort="governance" role="columnheader">Governance attack <span class="sort-mark" data-mark="governance"></span></button>
+                <button type="button" data-sort="oracle" role="columnheader">Oracle failure <span class="sort-mark" data-mark="oracle"></span></button>
+                <button type="button" data-sort="tvl" role="columnheader">TVL / depth <span class="sort-mark" data-mark="tvl"></span></button>
+              </div>
+              <div id="matrix-rows"></div>
+            </div>
+          </div>
+          <div class="matrix-foot">
+            <div class="heat-legend"><span>Lowest sixth</span><i data-step="0" title="Step 1: lowest sixth"></i><i data-step="1" title="Step 2"></i><i data-step="2" title="Step 3"></i><i data-step="3" title="Step 4"></i><i data-step="4" title="Step 5"></i><i data-step="5" title="Step 6: highest sixth"></i><span>Highest sixth</span><span style="margin-left:.375rem">Six quantile steps, exact values on each cell.</span></div>
+            <span class="micro" id="matrix-help">Click a cell to inspect · use + in a row to compare</span>
+          </div>
+        </section>
+
+        <div class="compare-empty" id="compare-empty">
+          <div><div class="micro">Compare tray / 0 of 4</div><p>Select up to four protocols with the + control to compare their estimates side by side.</p></div>
+          <button class="btn btn-sm" type="button" disabled>Compare selected</button>
+        </div>
+
+        <section class="risk-detail" aria-labelledby="risk-detail-title">
+          <div class="detail-main" id="risk-detail-main"></div>
+          <aside class="derive" aria-label="How the estimate is derived">
+            <h3>How to read this</h3>
+            <ol>
+              <li>Each cell is a market-implied probability for a defined loss event over the selected horizon.</li>
+              <li>The band is derived from pool depth, not a confidence interval in the statistical sense.</li>
+              <li>The underlying market, liquidity and resolution source are attached below the estimate.</li>
+            </ol>
+            <p class="persistent">Estimates to compare, not a rating, score or advice. The market can be wrong; the protocol can change.</p>
+          </aside>
+        </section>
+
+        <div class="row mt-24" style="justify-content:space-between">
+          <p class="micro" style="max-width:70ch;line-height:1.6">Illustrative data. Risk estimates are invented for this interface study and do not describe the actual risk of any protocol. Underlying markets are fictional.</p>
+          <a class="link-arrow" href="../app/index.html">Open the market index <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="compare-tray" id="compare-tray" aria-label="Compare protocols" hidden>
+    <div class="tray-inner">
+      <span class="micro">Compare</span>
+      <div class="tray-chips" id="tray-chips"><span class="tray-empty">Select up to four protocols from the matrix.</span></div>
+      <div class="tray-actions"><span class="tray-count" id="tray-count">0 / 4</span><button class="btn btn-sm" type="button" id="compare-open" disabled>Compare selected</button></div>
+    </div>
+  </div>
+
+  <div class="drawer" id="drawer" hidden>
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="drawer-head"><div><div class="micro" id="drawer-meta">Comparison</div><h2 id="drawer-title">Side by side</h2></div><button class="drawer-close" type="button" id="drawer-close" aria-label="Close comparison">✕</button></div>
+      <div class="drawer-section"><h3 id="drawer-chart-title">Estimate history</h3><div class="compare-chart" id="compare-chart"></div></div>
+      <div class="drawer-section"><h3>Estimates at <span id="drawer-horizon">90</span> days</h3><table class="compare-table" id="compare-table"></table></div>
+      <div class="drawer-section"><p class="micro" style="line-height:1.6;max-width:70ch">These estimates are market-implied probabilities for defined loss events. They are not a rating, a recommendation or a prediction. Compare them with your own exposure, not instead of it.</p></div>
+    </aside>
+  </div>
+
+    <section class="about-band" id="about" aria-labelledby="about-title">
+      <div class="wrap">
+        <div class="about-head">
+          <div><p class="eyebrow">About / Seer</p><h2 class="h2" id="about-title">Follow the protocol.</h2></div>
+          <p class="about-note">Seer is a prediction-market protocol on Ethereum and Gnosis Chain. Read the work, check the documentation, and find the community in the places below.</p>
+        </div>
+        <div class="about-links">
+          <a class="about-link" href="https://github.com/seer-pm" target="_blank" rel="noopener noreferrer"><span class="about-index">01 / Code</span><span class="about-name">GitHub <span aria-hidden="true">↗</span></span><span class="about-desc">Protocol repositories and open-source work.</span></a>
+          <a class="about-link" href="https://seer-3.gitbook.io/seer-documentation" target="_blank" rel="noopener noreferrer"><span class="about-index">02 / Read</span><span class="about-name">Documentation <span aria-hidden="true">↗</span></span><span class="about-desc">Markets, resolution, liquidity and the protocol.</span></a>
+          <a class="about-link" href="https://x.com/seer_pm?s=11" target="_blank" rel="noopener noreferrer"><span class="about-index">03 / Follow</span><span class="about-name">X <span aria-hidden="true">↗</span></span><span class="about-desc">Product notes and protocol updates.</span></a>
+          <a class="about-link" href="https://t.me/Seerpredictionmarket" target="_blank" rel="noopener noreferrer"><span class="about-index">04 / Chat</span><span class="about-name">Telegram <span aria-hidden="true">↗</span></span><span class="about-desc">Community chat and market discussion.</span></a>
+          <a class="about-link" href="https://discord.com/invite/AYqDkeZuvk" target="_blank" rel="noopener noreferrer"><span class="about-index">05 / Build</span><span class="about-name">Discord <span aria-hidden="true">↗</span></span><span class="about-desc">Builders, traders and reviewers.</span></a>
+        </div>
+      </div>
+    </section>
+
+  <div id="site-footer"></div>
+  <script src="../shared/shared.js?v=37"></script>
+  <script>
+    (function () {
+      const S = window.SEER, f = S.fmt;
+      const R = S.risk;
+      const protocols = R.protocols;
+      const state = { horizon: 90, risk: 'All', q: '', chain: 'All', sort: 'name', dir: 1, selected: { protocol: 'Aurelia', risk: 'exploit' }, compare: [] };
+      document.getElementById('risk-search-icon').innerHTML = S.icons.search;
+      if (window.innerWidth < 700) document.getElementById('matrix-help').textContent = 'Swipe the matrix sideways for governance · oracle · depth';
+
+      const descriptors = {
+        exploit: { label: 'smart-contract loss above $10M', short: 'Exploit' },
+        depeg: { label: 'stablecoin depeg below $0.97', short: 'Depeg' },
+        governance: { label: 'governance attack with material loss', short: 'Governance' },
+        oracle: { label: 'oracle failure lasting over 1 hour', short: 'Oracle' }
+      };
+      const histCache = new Map();
+      function historyFor(p, type, horizon) {
+        const key = p.name + type + horizon;
+        if (histCache.has(key)) return histCache.get(key);
+        const target = p.values[type][horizon];
+        const base = p.history[p.history.length - 1].value;
+        const vals = p.history.map((h) => ({ date: h.date, value: Math.max(0.02, (h.value / base) * target) }));
+        vals[vals.length - 1].value = target;
+        histCache.set(key, vals);
+        return vals;
+      }
+      function band(v) { return (0.25 + v * 0.11).toFixed(1); }
+      function stepFor(v) {
+        const vals = [];
+        protocols.forEach((p) => R.types.forEach((t) => vals.push(p.values[t.id][state.horizon])));
+        vals.sort((a, b) => a - b);
+        const qs = [1, 2, 3, 4, 5].map((k) => vals[Math.min(vals.length - 1, Math.floor(vals.length * k / 6))]);
+        let step = 0;
+        qs.forEach((q, i) => { if (v > q) step = i + 1; });
+        return step;
+      }
+      function filtered() {
+        let l = protocols.slice();
+        if (state.q.trim()) {
+          const q = state.q.toLowerCase();
+          l = l.filter((p) => (p.name + ' ' + p.category + ' ' + p.chain).toLowerCase().includes(q));
+        }
+        if (state.chain !== 'All') l = l.filter((p) => p.chain === state.chain);
+        if (state.sort === 'name') l.sort((a, b) => a.name.localeCompare(b.name) * state.dir);
+        else if (state.sort === 'tvl') l.sort((a, b) => (a.tvl - b.tvl) * state.dir);
+        else l.sort((a, b) => (a.values[state.sort][state.horizon] - b.values[state.sort][state.horizon]) * state.dir);
+        return l;
+      }
+
+      function paintRows() {
+        const list = filtered();
+        document.getElementById('matrix-count').textContent = list.length + (list.length === 1 ? ' protocol' : ' protocols');
+        document.getElementById('horizon-label').textContent = state.horizon + 'D horizon';
+        document.querySelectorAll('#horizon-tabs button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.horizon) === state.horizon)));
+        document.querySelectorAll('#risk-tabs .chip-tab').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.risk === state.risk)));
+        document.querySelectorAll('[data-sort]').forEach((b) => {
+          const active = b.dataset.sort === state.sort;
+          b.dataset.active = active;
+          const mark = b.querySelector('.sort-mark');
+          if (mark) mark.textContent = active ? (state.dir > 0 ? '↑' : '↓') : '';
+        });
+        document.getElementById('matrix-rows').innerHTML = list.map((p) => {
+          const cells = R.types.map((t) => {
+            const v = p.values[t.id][state.horizon];
+            const sel = state.selected.protocol === p.name && state.selected.risk === t.id;
+            return '<button class="risk-cell' + (sel ? ' is-selected' : '') + (state.risk !== 'All' && state.risk !== t.id ? ' is-dim' : '') + '" data-step="' + stepFor(v) + '" type="button" data-protocol="' + p.name + '" data-risk="' + t.id + '" aria-label="' + p.name + ' ' + t.label + ' ' + v.toFixed(1) + ' percent at ' + state.horizon + ' days"><span class="heat"></span><span class="inner"><span class="v">' + v.toFixed(1) + '%</span><span class="b">±' + band(v) + '</span></span></button>';
+          }).join('');
+          const checked = state.compare.includes(p.name);
+          return '<div class="risk-row" role="row">' +
+            '<div class="protocol-cell" role="cell"><span class="mark" aria-hidden="true">' + p.name.slice(0, 2).toUpperCase() + '</span><div style="min-width:0"><div class="p-name">' + p.name + '</div><div class="p-sub">' + p.category + ' · ' + p.chain + '</div></div><button class="cmp" type="button" data-compare="' + p.name + '" aria-pressed="' + checked + '" aria-label="' + (checked ? 'Remove ' : 'Add ') + p.name + ' to compare">' + S.icons.check + '</button></div>' +
+            cells +
+            '<div class="depth-cell" role="cell">' + f.usd(p.liquidity) + '<span>pool depth</span></div>' +
+            '</div>';
+        }).join('');
+        document.querySelectorAll('.risk-cell').forEach((b) => b.addEventListener('click', () => {
+          state.selected = { protocol: b.dataset.protocol, risk: b.dataset.risk };
+          paintRows();
+          paintDetail();
+        }));
+        document.querySelectorAll('[data-compare]').forEach((b) => b.addEventListener('click', (ev) => { ev.stopPropagation(); toggleCompare(b.dataset.compare); }));
+      }
+
+      function paintDetail() {
+        const p = protocols.find((x) => x.name === state.selected.protocol) || protocols[0];
+        const t = R.types.find((x) => x.id === state.selected.risk) || R.types[0];
+        const v = p.values[t.id][state.horizon];
+        const hist = historyFor(p, t.id, state.horizon);
+        document.getElementById('risk-detail-main').innerHTML =
+          '<div class="detail-head"><div><h2 id="risk-detail-title">' + p.name + ' <span style="color:var(--muted);font-weight:400">/ ' + t.label + '</span></h2><div class="sub">' + p.chain + ' · ' + p.category + ' · ' + state.horizon + '-day horizon</div></div><span class="tag tag-violet">' + t.short + '</span></div>' +
+          '<div class="detail-estimate"><div class="big">' + v.toFixed(1) + '<small>%</small></div><div class="band"><b>±' + band(v) + ' pts</b>liquidity-derived band<br>' + f.usd(p.liquidity) + ' pool depth</div></div>' +
+          '<div class="detail-body"><div class="detail-chart" id="detail-chart"></div><div class="detail-facts">' +
+          '<div class="fact"><div class="k">Underlying market</div><div class="v">Will ' + p.name + ' see a ' + descriptors[t.id].label + ' within ' + state.horizon + ' days?</div></div>' +
+          '<div class="fact"><div class="k">Market estimate</div><div class="v"><b>' + v.toFixed(1) + '%</b> · ±' + band(v) + ' pts</div></div>' +
+          '<div class="fact"><div class="k">Liquidity</div><div class="v">' + f.usd(p.liquidity) + ' · ' + f.num(p.traders) + ' traders</div></div>' +
+          '<div class="fact"><div class="k">Resolution</div><div class="v">Named event source · Reality.eth, Kleros backstop</div></div>' +
+          '</div></div>' +
+          '<div class="detail-question"><b>How it is derived:</b> the estimate is the market-implied probability of the defined event over the selected horizon. The band reflects pool depth; thin liquidity widens the practical range. <b>Not a rating or advice.</b></div>';
+        S.charts.line(document.getElementById('detail-chart'), {
+          series: [{ name: t.short, values: hist.map((h) => h.value), color: 'var(--chart-1)', area: true }],
+          labels: hist.map((h) => f.shortDate(h.date)),
+          height: 210,
+          yMin: 0,
+          yMax: Math.max(5, Math.ceil(v * 1.8)),
+          yTicks: 3,
+          xTicks: 4,
+          yFormat: (x) => x.toFixed(0) + '%',
+          label: 'Estimate history for ' + p.name + ' ' + t.label,
+          caption: 'Illustrative history · 24 days'
+        });
+      }
+
+      function toggleCompare(name) {
+        if (state.compare.includes(name)) state.compare = state.compare.filter((x) => x !== name);
+        else if (state.compare.length >= 4) { S.toast('Compare tray is full', 'Remove one protocol before adding another.'); return; }
+        else state.compare.push(name);
+        paintRows();
+        paintTray();
+      }
+      function paintTray() {
+        document.getElementById('compare-tray').hidden = state.compare.length === 0;
+        document.getElementById('compare-empty').hidden = state.compare.length !== 0;
+        document.getElementById('tray-count').textContent = state.compare.length + ' / 4';
+        document.getElementById('compare-open').disabled = state.compare.length < 2;
+        const chips = document.getElementById('tray-chips');
+        if (!state.compare.length) {
+          chips.innerHTML = '<span class="tray-empty">Select up to four protocols from the matrix.</span>';
+        } else {
+          chips.innerHTML = state.compare.map((n) => '<span class="tray-chip">' + n + '<button type="button" data-remove="' + n + '" aria-label="Remove ' + n + '">' + S.icons.close + '</button></span>').join('');
+          chips.querySelectorAll('[data-remove]').forEach((b) => b.addEventListener('click', () => toggleCompare(b.dataset.remove)));
+        }
+      }
+
+      function openDrawer() {
+        const drawer = document.getElementById('drawer');
+        drawer.hidden = false;
+        document.body.style.overflow = 'hidden';
+        document.getElementById('drawer-close').focus();
+        const selected = state.compare.map((n) => protocols.find((p) => p.name === n)).filter(Boolean);
+        const risk = state.risk === 'All' ? 'exploit' : state.risk;
+        const t = R.types.find((x) => x.id === risk);
+        document.getElementById('drawer-horizon').textContent = state.horizon;
+        document.getElementById('drawer-meta').textContent = selected.length + ' protocols · ' + state.horizon + '-day horizon';
+        document.getElementById('drawer-chart-title').textContent = 'Estimate history · ' + t.label;
+        const colors = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)'];
+        S.charts.line(document.getElementById('compare-chart'), {
+          series: selected.map((p, i) => ({ name: p.name, values: historyFor(p, risk, state.horizon).map((h) => h.value), color: colors[i] })),
+          labels: historyFor(selected[0], risk, state.horizon).map((h) => f.shortDate(h.date)),
+          height: 220,
+          yMin: 0,
+          yMax: Math.max(...selected.map((p) => p.values[risk][state.horizon])) * 1.6,
+          yTicks: 3,
+          xTicks: 4,
+          yFormat: (v) => v.toFixed(0) + '%',
+          label: 'Comparison of market-implied risk estimates',
+          caption: 'Illustrative history · selected risk type'
+        });
+        document.getElementById('compare-table').innerHTML = '<thead><tr><th>Protocol</th><th>Exploit</th><th>Depeg</th><th>Governance</th><th>Oracle</th></tr></thead><tbody>' +
+          selected.map((p) => '<tr><td>' + p.name + '</td>' + R.types.map((t2) => '<td>' + p.values[t2.id][state.horizon].toFixed(1) + '%</td>').join('') + '</tr>').join('') +
+          '</tbody>';
+      }
+      function closeDrawer() {
+        document.getElementById('drawer').hidden = true;
+        document.body.style.overflow = '';
+        document.getElementById('compare-open').focus();
+      }
+
+      document.getElementById('horizon-tabs').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-horizon]');
+        if (!b) return;
+        state.horizon = Number(b.dataset.horizon);
+        paintRows(); paintDetail();
+      });
+      document.getElementById('risk-tabs').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-risk]');
+        if (!b) return;
+        state.risk = b.dataset.risk;
+        paintRows();
+      });
+      document.getElementById('chain-filter').addEventListener('change', (e) => { state.chain = e.target.value; paintRows(); });
+      document.getElementById('risk-search').addEventListener('input', (e) => { state.q = e.target.value; paintRows(); });
+      document.querySelectorAll('[data-sort]').forEach((b) => b.addEventListener('click', () => {
+        if (state.sort === b.dataset.sort) state.dir *= -1;
+        else { state.sort = b.dataset.sort; state.dir = 1; }
+        paintRows();
+      }));
+      document.getElementById('compare-open').addEventListener('click', openDrawer);
+      document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+      document.getElementById('drawer-backdrop').addEventListener('click', closeDrawer);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.getElementById('drawer').hidden) closeDrawer(); });
+
+      document.getElementById('matrix-rows').innerHTML = '<div class="risk-loading">' + Array.from({ length: 8 }).map(() => '<div class="skeleton"></div>').join('') + '</div>';
+      document.getElementById('risk-detail-main').innerHTML = '<div style="padding:1rem"><div class="skeleton" style="height:1.5rem;width:44%"></div><div class="skeleton mt-16" style="height:3.25rem;width:30%"></div><div class="skeleton mt-16" style="height:12.5rem"></div></div>';
+      setTimeout(() => {
+        paintRows();
+        paintDetail();
+        paintTray();
+      }, 520);
+    })();
+  </script>
+</body>
+</html>

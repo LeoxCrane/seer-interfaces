@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Seer is the base layer for decision markets: one protocol, five surfaces, markets on Ethereum and Gnosis Chain.">
+  <meta name="theme-color" content="#0c0a16">
+  <title>Seer: The base layer for decision markets</title>
+  <script>try{var t=localStorage.getItem('seer-theme');if(t==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="icon" href="../logo/favicon.png" type="image/png">
+  <link rel="stylesheet" href="../shared/shared.css?v=37">
+  <style>
+    :root { --hero-accent:#8f55f7; }
+    [data-theme="light"] { --hero-accent:#6c2bd9; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: var(--hero);
+      color: var(--hero-text);
+      border-bottom: 1px solid var(--line);
+      isolation: isolate;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset:0;
+      z-index: -1;
+      background:
+        radial-gradient(760px 480px at 74% 40%, rgba(125, 51, 255, .18), transparent 66%),
+        radial-gradient(500px 300px at 18% 0%, rgba(143, 85, 247, .10), transparent 70%);
+    }
+    .hero-rays {
+      position: absolute;
+      z-index: -1;
+      top:-22%;
+      right:-8%;
+      width:78%;
+      height:128%;
+      pointer-events: none;
+      background: var(--hero-accent);
+      opacity: .13;
+      -webkit-mask: url("../logo/rays.png") center / contain no-repeat;
+      mask: url("../logo/rays.png") center / contain no-repeat;
+      mix-blend-mode: screen;
+    }
+    [data-theme="light"] .hero-rays { opacity: .08; mix-blend-mode: multiply; }
+    .hero-inner {
+      position: relative;
+      display: grid;
+      grid-template-columns:minmax(0, 1.02fr) minmax(0, .98fr);
+      gap:clamp(2rem, 5vw, 4.5rem);
+      align-items: center;
+      min-height:min(47.5rem, calc(100vh - 4.25rem));
+      padding-block: clamp(56px, 7vw, 92px) clamp(44px, 5vw, 64px);
+    }
+    .hero-copy { position: relative; z-index: 2; max-width:45rem; }
+    .hero .eyebrow { color: var(--hero-muted); }
+    .hero .eyebrow::before { background: var(--hero-accent); }
+    .hero-title {
+      font-size:var(--fs-display);
+      line-height:1.05;
+      letter-spacing:-.02em;
+      font-weight: 500;
+      max-width:13.5ch;
+      margin-top:1.625rem;
+      text-wrap: balance;
+    }
+    .hero-title .accent { color: var(--hero-accent); }
+    .hero-sub {
+      margin-top:1.625rem;
+      max-width:46ch;
+      font-size:clamp(.9375rem, 1.25vw, 1.0625rem);
+      line-height:1.55;
+      color: var(--hero-muted);
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap:.625rem; margin-top:2rem; }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap:1.125rem;
+      align-items: center;
+      margin-top:2.875rem;
+      padding-top:1.125rem;
+      border-top: 1px solid color-mix(in srgb, var(--hero-text) 14%, transparent);
+      font-family: var(--font-mono);
+      font-size:.5938rem;
+      letter-spacing:.11em;
+      text-transform: uppercase;
+      color: var(--hero-muted);
+    }
+    .hero-meta span { display: inline-flex; align-items: center; gap:.4375rem; }
+    .hero-meta span + span::before { content: "/"; opacity: .4; margin-right:.6875rem; }
+
+    .hero-visual {
+      position: relative;
+      min-height:35rem;
+      display: grid;
+      place-items: center;
+    }
+    .hero-dot-field {
+      position: absolute;
+      inset:6% -4% 2% 2%;
+      display: grid;
+      grid-template-columns:repeat(28, 1fr);
+      gap:.625rem;
+      align-content: center;
+      opacity: .5;
+      -webkit-mask-image: radial-gradient(ellipse 74% 66% at 50% 52%, #000 30%, transparent 78%);
+      mask-image: radial-gradient(ellipse 74% 66% at 50% 52%, #000 30%, transparent 78%);
+    }
+    .hero-dot-field i {
+      aspect-ratio: 1;
+      border-radius:50%;
+      background: color-mix(in srgb, var(--hero-text) 13%, transparent);
+      transition: background 600ms var(--ease), opacity 600ms var(--ease);
+    }
+    .hero-dot-field i.on { background: color-mix(in srgb, var(--hero-accent) 72%, transparent); }
+    .hero-dot-field i.hot { background: var(--hero-accent); opacity: .9; }
+
+    .feature-orbit {
+      position: relative;
+      width:min(26.875rem, 100%);
+      z-index: 2;
+    }
+    .feature-orbit::before {
+      content: "";
+      position: absolute;
+      inset:-1.75rem -1.75rem -1.75rem -1.75rem;
+      border: 1px solid color-mix(in srgb, var(--hero-text) 10%, transparent);
+      border-radius:1.875rem;
+      pointer-events: none;
+    }
+    .feature-orbit::after {
+      content: "PROBABILITY / LIVE";
+      position: absolute;
+      left:-3.5rem;
+      top:2.5rem;
+      transform: rotate(-90deg);
+      transform-origin: left top;
+      font-family: var(--font-mono);
+      font-size:.5625rem;
+      letter-spacing:.18em;
+      color: var(--hero-muted);
+      white-space: nowrap;
+    }
+    .feature-card {
+      position: relative;
+      background: #0c0a16;
+      color: #ededf2;
+      border: 1px solid rgba(233, 234, 250, .15);
+      border-radius:1.75rem;
+      padding:1.25rem;
+      box-shadow: 0 40px 100px -40px rgba(0, 0, 0, .9);
+    }
+    .feature-head { display: flex; justify-content: space-between; align-items: center; gap:.75rem; }
+    .feature-head .micro { color: #bfbfe6; }
+    .feature-live { display: inline-flex; align-items: center; gap:.375rem; color: #ff8b82; font-family: var(--font-mono); font-size:.5625rem; letter-spacing:.1em; text-transform: uppercase; }
+    .feature-live.feature-example { color: #bfbfe6; }
+    .feature-live.feature-example .dot { display:none; }
+    .feature-live .dot { width:.375rem; height:.375rem; background: #dc251c; border-radius:50%; animation: pulse 2.4s var(--ease) infinite; }
+    .feature-question { margin-top:1.375rem; font-size:1.1875rem; line-height:1.3; letter-spacing:-.02em; font-weight: 500; color: #e9eafa; }
+    .feature-prob { display: flex; align-items: flex-end; justify-content: space-between; gap:1rem; margin-top:1.625rem; }
+    .feature-prob .big { font-size:4rem; line-height:.86; letter-spacing:-.065em; font-variant-numeric: tabular-nums; color: #e9eafa; }
+    .feature-prob .big small { font-size:1.25rem; letter-spacing:-.02em; color: #bfbfe6; }
+    .feature-prob .chg { font-family: var(--font-mono); font-size:.625rem; color: #a98af5; text-align: right; line-height:1.6; }
+    .feature-prob .chg b { display: block; font-size:.75rem; font-weight: 500; }
+    .feature-prob .chg span { color: #bfbfe6; }
+    .feature-bar { margin-top:1.125rem; }
+    .feature-bar .prob { height:.5rem; background: #242238; }
+    .feature-bar .scale { display: flex; justify-content: space-between; margin-top:.4375rem; font-family: var(--font-mono); font-size:.5312rem; letter-spacing:.08em; color: #8c88a3; }
+    .feature-rows { display: grid; grid-template-columns:1fr 1fr; gap:.375rem; margin-top:1.125rem; }
+    .feature-row { display: flex; align-items: center; justify-content: space-between; gap:.5rem; padding:.5rem .5625rem; border-radius:.5rem; background: #17141f; border: 1px solid rgba(233, 234, 250, .07); }
+    .feature-row span { font-size:.625rem; color: #bfbfe6; }
+    .feature-row b { font-family: var(--font-mono); font-size:.6875rem; font-weight: 400; color: #e9eafa; }
+    .feature-row b.yes { color: #a98af5; }
+    .feature-footer { display: flex; justify-content: space-between; gap:.625rem; margin-top:1.125rem; padding-top:.875rem; border-top: 1px solid rgba(233, 234, 250, .1); font-family: var(--font-mono); font-size:.5312rem; letter-spacing:.05em; color: #8c88a3; }
+    .feature-footer span { display: inline-flex; align-items: center; gap:.3125rem; }
+
+    .hero-rail { display: grid; grid-template-columns:repeat(4, minmax(0, 1fr)); border-top: 1px solid color-mix(in srgb, var(--hero-text) 14%, transparent); }
+    .hero-rail div { padding:1.125rem 0 1.375rem; border-right: 1px solid color-mix(in srgb, var(--hero-text) 10%, transparent); }
+    .hero-rail div + div { padding-left:1.25rem; }
+    .hero-rail div:last-child { border-right: 0; }
+    .hero-rail .micro { color: var(--hero-muted); margin-bottom:.3125rem; }
+    .hero-rail .val { font-size:.8125rem; color: var(--hero-text); letter-spacing:-.01em; }
+
+    /* ---- Protocol stack ---- */
+    .stack-grid { display: grid; grid-template-columns:minmax(0, 1.12fr) minmax(0, .88fr); gap:clamp(2rem, 5vw, 4.5rem); align-items: start; }
+    .stack-toolbar { display: flex; justify-content: space-between; gap:1rem; align-items: center; margin-bottom:1rem; flex-wrap: wrap; }
+    .stack-scene { position: relative; padding-left:2.625rem; }
+    .stack-axis { position: absolute; left:0; top:.375rem; bottom:.5rem; width:.0625rem; background: transparent; }
+    .stack-axis::before { content: ""; position: absolute; left:0; top:0; bottom:0; width:.0625rem; background: var(--line-strong); }
+    .stack-axis span { position: absolute; left:-1.9375rem; transform: rotate(-90deg); transform-origin: left top; font-family: var(--font-mono); font-size:.5rem; letter-spacing:.12em; color: var(--muted); white-space: nowrap; }
+    .stack-axis span:nth-child(1) { top:.625rem; }
+    .stack-axis span:nth-child(2) { top:6rem; }
+    .stack-axis span:nth-child(3) { top:11.375rem; }
+    .stack-axis span:nth-child(4) { top:16.75rem; }
+    .stack-axis span:nth-child(5) { top:22.125rem; }
+    .stack-axis span:nth-child(6) { top:27.5rem; }
+    .stack-apps { display: grid; gap:.5rem; }
+    .stack-app {
+      --indent:calc(var(--i) * .8125rem);
+      position: relative;
+      display: grid;
+      grid-template-columns:2.125rem 1fr auto 1.125rem;
+      align-items: center;
+      gap:.75rem;
+      width:calc(100% - var(--indent));
+      margin-left:var(--indent);
+      min-height:4rem;
+      padding:.625rem .75rem;
+      border: 1px solid var(--line);
+      border-radius:.625rem;
+      background: var(--card);
+      text-align: left;
+      transition: border-color 180ms, background 180ms, transform 180ms;
+    }
+    .stack-app:hover, .stack-app:focus-visible { border-color: var(--line-strong); background: var(--surface); transform: translateX(5px); }
+    .stack-app[aria-pressed="true"] { border-color: color-mix(in srgb, var(--primary) 55%, var(--line)); background: var(--violet-soft); }
+    .stack-app .idx { font-family: var(--font-mono); font-size:.5625rem; color: var(--muted); letter-spacing:.08em; }
+    .stack-app[aria-pressed="true"] .idx { color: var(--violet-text); }
+    .stack-app .name { font-size:1rem; letter-spacing:-.025em; font-weight: 500; color: var(--text); line-height:1.1; }
+    .stack-app .tag { justify-self: end; }
+    .stack-app .go { color: var(--muted); display: grid; place-items: center; }
+    .stack-app .go svg { width:.8125rem; height:.8125rem; }
+    .stack-app[aria-pressed="true"] .go { color: var(--violet-text); }
+    .stack-base {
+      position: relative;
+      margin-top:1.5rem;
+      margin-left:0;
+      border-radius:.875rem;
+      background: #0c0a16;
+      color: #ededf2;
+      border: 1px solid rgba(233, 234, 250, .14);
+      overflow: hidden;
+    }
+    .stack-base::before {
+      content: "";
+      position: absolute;
+      inset:0;
+      background-image: radial-gradient(rgba(169, 138, 245, .28) .8px, transparent .8px);
+      background-size: 14px 14px;
+      opacity: .28;
+      pointer-events: none;
+    }
+    .stack-base-head { position: relative; display: flex; justify-content: space-between; gap:.875rem; padding:.875rem 1rem; border-bottom: 1px solid rgba(233, 234, 250, .12); }
+    .stack-base-head .label { font-family: var(--font-mono); font-size:.5625rem; letter-spacing:.14em; text-transform: uppercase; color: #a98af5; }
+    .stack-base-head .name { font-size:1.125rem; letter-spacing:-.03em; color: #e9eafa; margin-top:.3125rem; }
+    .stack-base-head .coord { font-family: var(--font-mono); font-size:.5312rem; color: #8c88a3; text-align: right; line-height:1.7; }
+    .primitives { position: relative; display: grid; grid-template-columns:repeat(2, 1fr); }
+    .primitive { padding:.875rem 1rem; border-top: 1px solid rgba(233, 234, 250, .09); border-right: 1px solid rgba(233, 234, 250, .09); }
+    .primitive:nth-child(even) { border-right: 0; }
+    .primitive:nth-child(-n+2) { border-top: 0; }
+    .primitive .pn { font-family: var(--font-mono); font-size:.5312rem; color: #8c88a3; letter-spacing:.1em; }
+    .primitive .pt { margin-top:.3125rem; font-size:.75rem; color: #e9eafa; letter-spacing:-.01em; }
+    .primitive .pd { margin-top:.25rem; font-size:.6562rem; line-height:1.5; color: #a9a3c4; }
+
+    .stack-detail { position: sticky; top:6rem; }
+    .stack-detail-inner { border-top: 1px solid var(--line-strong); padding-top:1.125rem; }
+    .stack-detail .layer-kicker { display: flex; align-items: center; justify-content: space-between; gap:.625rem; }
+    .stack-detail .layer-name { font-size:clamp(1.75rem, 3vw, 2.5rem); line-height:1.05; letter-spacing:-.02em; margin-top:1.125rem; }
+    .stack-detail .layer-desc { margin-top:1rem; color: var(--text-2); font-size:.875rem; line-height:1.6; max-width:38ch; }
+    .stack-detail .facts { display: grid; grid-template-columns:1fr 1fr; gap:0; margin-top:1.625rem; border-top: 1px solid var(--line); }
+    .stack-detail .fact { padding:.75rem 0; border-bottom: 1px solid var(--line); }
+    .stack-detail .fact:nth-child(odd) { padding-right:.75rem; }
+    .stack-detail .fact:nth-child(even) { padding-left:.75rem; border-left: 1px solid var(--line); }
+    .stack-detail .fact .k { font-family: var(--font-mono); font-size:.5312rem; letter-spacing:.1em; text-transform: uppercase; color: var(--muted); }
+    .stack-detail .fact .v { margin-top:.3125rem; font-size:.75rem; color: var(--text); }
+    .stack-detail .layer-link { margin-top:1.625rem; }
+
+
+    /* ---- Walkthrough ---- */
+    .how-grid { display: grid; grid-template-columns:minmax(0, .8fr) minmax(0, 1.2fr); gap:clamp(2rem, 5vw, 4.5rem); align-items: start; }
+    .steps { border-top: 1px solid var(--line); }
+    .step-btn {
+      display: grid;
+      grid-template-columns:2.125rem 1fr auto;
+      gap:.75rem;
+      align-items: center;
+      width:100%;
+      padding:1.125rem .125rem;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      text-align: left;
+      color: var(--muted);
+      transition: color 160ms, padding 160ms;
+    }
+    .step-btn:hover { color: var(--text); padding-left:.5rem; }
+    .step-btn[aria-selected="true"] { color: var(--text); }
+    .step-btn .n { font-family: var(--font-mono); font-size:.5625rem; color: var(--muted); }
+    .step-btn[aria-selected="true"] .n { color: var(--violet-text); }
+    .step-btn .t { font-size:1.0625rem; letter-spacing:-.02em; }
+    .step-btn .d { font-family: var(--font-mono); font-size:.5312rem; color: var(--muted); }
+    .step-btn .bar { width:1.625rem; height:.0625rem; background: var(--line-strong); transition: width 200ms, background 200ms; }
+    .step-btn[aria-selected="true"] .bar { width:2.625rem; background: var(--primary); }
+    .step-panel { border: 1px solid var(--line); border-radius:var(--r-xl); background: var(--card); overflow: hidden; }
+    .step-panel-head { display: flex; justify-content: space-between; gap:.875rem; align-items: center; padding:.875rem 1.125rem; border-bottom: 1px solid var(--line); }
+    .step-panel-body { padding:clamp(1.125rem, 3vw, 1.75rem); min-height:21.25rem; display: flex; flex-direction: column; justify-content: space-between; gap:1.5rem; }
+    .step-copy h3 { font-size:1.375rem; letter-spacing:-.03em; }
+    .step-copy p { margin-top:.5rem; max-width:46ch; color: var(--text-2); font-size:.8125rem; line-height:1.6; }
+    .mock-form { display: grid; gap:.625rem; max-width:26.25rem; }
+    .mock-field { border: 1px solid var(--line); border-radius:.5rem; background: var(--surface); padding:.625rem .75rem; }
+    .mock-field .k { font-family: var(--font-mono); font-size:.5rem; letter-spacing:.1em; text-transform: uppercase; color: var(--muted); }
+    .mock-big { font-size:1.25rem; }
+    .mock-big.violet { color: var(--violet-text); }
+    .mock-field .v { margin-top:.25rem; font-size:.8125rem; color: var(--text); }
+    .mock-split { display: grid; grid-template-columns:1fr 1fr; gap:.625rem; }
+    .mock-chips { display: flex; gap:.3125rem; }
+    .mock-chip { padding:.25rem .4375rem; border-radius:.25rem; background: var(--surface-2); color: var(--text-2); font-family: var(--font-mono); font-size:.5625rem; }
+    .mock-chip.on { background: var(--primary); color: #f5f8fb; }
+    .path-diagram { display: grid; gap:.4375rem; max-width:27.5rem; }
+    .path-node { display: flex; align-items: center; gap:.625rem; padding:.625rem .75rem; border: 1px solid var(--line); border-radius:.5rem; background: var(--surface); }
+    .path-node .dot { width:.4375rem; height:.4375rem; border-radius:50%; background: var(--muted); flex:none; }
+    .path-node.on { border-color: color-mix(in srgb, var(--primary) 45%, var(--line)); background: var(--violet-soft); }
+    .path-node.on .dot { background: var(--primary); }
+    .path-node .k { font-size:.75rem; color: var(--text); }
+    .path-node .s { margin-left:auto; font-family: var(--font-mono); font-size:.5312rem; color: var(--muted); }
+    .receipt { max-width:26.25rem; border: 1px solid var(--line); border-radius:.625rem; overflow: hidden; }
+    .receipt-row { display: flex; justify-content: space-between; gap:.75rem; padding:.625rem .75rem; border-bottom: 1px solid var(--line); font-size:.75rem; color: var(--text-2); }
+    .receipt-row:last-child { border-bottom: 0; }
+    .receipt-row b { font-family: var(--font-mono); font-weight: 400; color: var(--text); }
+    .receipt-total { background: var(--violet-soft); color: var(--violet-2); }
+
+    /* ---- Proof ---- */
+    .proof-chart { padding:1.25rem; }
+    .proof-side { display: grid; gap:1.5rem; }
+    .chain-bars { display: grid; gap:.875rem; }
+    .chain-bar .top { display: flex; justify-content: space-between; font-size:.6875rem; color: var(--text-2); margin-bottom:.375rem; }
+    .chain-bar .track { height:.3125rem; border-radius:6.1875rem; background: var(--track); overflow: hidden; }
+    .chain-bar .track span { display: block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #7d33ff, #a98af5); }
+    .source-list { display: grid; gap:.5625rem; }
+    .source-list li { display: flex; justify-content: space-between; gap:.75rem; padding-bottom:.5625rem; border-bottom: 1px solid var(--line); font-size:.7188rem; color: var(--text-2); }
+    .source-list li:last-child { border-bottom: 0; padding-bottom:0; }
+    .source-list b { font-family: var(--font-mono); font-weight: 400; color: var(--text); font-size:.6562rem; }
+
+    /* ---- Quote ---- */
+    .quote-band { background: var(--feature); color: var(--feature-text); border-radius:1.75rem; padding:clamp(1.75rem, 4vw, 3.25rem); position: relative; overflow: hidden; }
+    .quote-band::after { content: ""; position: absolute; right:-5rem; top:-5rem; width:20rem; height:20rem; border: 1px solid rgba(233, 234, 250, .1); border-radius:50%; pointer-events: none; }
+    .quote-band .q { font-size:clamp(1.75rem, 3.5vw, 2.875rem); line-height:1.06; letter-spacing:-.02em; max-width:20ch; margin-top:1.125rem; }
+    .quote-band .q em { font-style: normal; color: #a98af5; }
+    .quote-grid { display: grid; grid-template-columns:1.2fr .8fr; gap:2rem; align-items: end; }
+    .quote-links { display: flex; flex-wrap: wrap; gap:.5rem; }
+    .quote-links a { display: inline-flex; align-items: center; gap:.4375rem; padding:.4375rem .625rem; border: 1px solid rgba(233, 234, 250, .16); border-radius:62.4375rem; font-size:.6875rem; color: #bfbfe6; transition: border-color 160ms, color 160ms; }
+    .quote-links a:hover { color: #e9eafa; border-color: rgba(233, 234, 250, .45); }
+
+    @media (max-width: 1100px) {
+      .hero-inner { grid-template-columns:1fr; min-height:0; }
+      .hero-visual { min-height:29.375rem; margin-top:.5rem; }
+      .hero-title { max-width:14ch; }
+      .feature-orbit { width:min(28.75rem, 100%); }
+      .stack-grid, .how-grid { grid-template-columns:1fr; }
+      .stack-detail { position: static; }
+      .stack-detail-inner { padding-top:1.375rem; }
+      .quote-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width: 900px) {
+      .hero-rail { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .hero-rail div:nth-child(2) { border-right: 0; }
+      .hero-rail div:nth-child(n+3) { border-top: 1px solid color-mix(in srgb, var(--hero-text) 10%, transparent); }
+      .feature-orbit::after { display: none; }
+    }
+    @media (max-width: 680px) {
+      .hero-inner { padding-block: 40px 36px; gap:2.375rem; }
+      .hero-visual { min-height:26.25rem; }
+      .feature-card { padding:1rem; border-radius:1.375rem; }
+      .feature-prob .big { font-size:3.375rem; }
+      .feature-question { font-size:1.0625rem; }
+      .feature-orbit::before { inset:-.875rem; border-radius:1.5rem; }
+      .hero-meta { gap:.625rem; margin-top:1.875rem; }
+      .hero-meta span + span::before { margin-right:.1875rem; }
+      .stack-scene { padding-left:1rem; }
+      .stack-axis span { display: none; }
+      .stack-app { --indent:calc(var(--i) * .5rem); grid-template-columns:1.375rem 1fr auto; gap:.5rem; }
+      .stack-app .go { display: none; }
+      .stack-app .tag { font-size:.5rem; }
+      .primitives { grid-template-columns:1fr; }
+      .primitive { border-right: 0; }
+      .primitive:nth-child(2) { border-top: 1px solid rgba(233, 234, 250, .09); }
+      .primitive:nth-child(-n+2) { border-top: 1px solid rgba(233, 234, 250, .09); }
+      .primitive:first-child { border-top: 0; }
+      .step-panel-body { min-height:18.75rem; }
+      .proof-chart { padding:.875rem; }
+      .quote-band { border-radius:1.375rem; }
+    }
+
+    @media (min-width: 1024px) {
+      body[data-page="home"] .feature-live,
+      body[data-page="home"] .feature-bar .scale span,
+      body[data-page="home"] .feature-row span,
+      body[data-page="home"] .feature-row b,
+      body[data-page="home"] .feature-footer,
+      body[data-page="home"] .hero-meta span,
+      body[data-page="home"] .hero-rail .val,
+            body[data-page="home"] .stack-axis span,
+      body[data-page="home"] .stack-app .idx,
+      body[data-page="home"] .stack-app .tag,
+      body[data-page="home"] .stack-base-head .label,
+      body[data-page="home"] .stack-base-head .coord,
+      body[data-page="home"] .primitive .pn,
+      body[data-page="home"] .primitive .pd,
+      body[data-page="home"] .stack-detail .fact .k,
+      body[data-page="home"] .step-btn .n,
+      body[data-page="home"] .step-btn .d,
+      body[data-page="home"] .mock-field .k,
+      body[data-page="home"] .mock-field .v,
+      body[data-page="home"] .mock-chip,
+      body[data-page="home"] .path-node .k,
+      body[data-page="home"] .path-node .s,
+      body[data-page="home"] .receipt-row,
+      body[data-page="home"] .chain-bar .top,
+      body[data-page="home"] .source-list li,
+      body[data-page="home"] .source-list b,
+      body[data-page="home"] .quote-links a,
+      body[data-page="home"] .stat-sub,
+      body[data-page="home"] .stat-label .micro { font-size:.78rem; line-height:1.45; }
+      body[data-page="home"] .stack-app .name,
+      body[data-page="home"] .step-btn .t,
+      body[data-page="home"] .primitive .pt,
+      body[data-page="home"] .stack-detail .fact .v,
+      body[data-page="home"] .hero-rail .val { font-size:.8rem; }
+    }
+  </style>
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-rays" aria-hidden="true"></div>
+      <div class="wrap hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">EF-01 · Seer protocol</p>
+          <h1 class="hero-title" id="hero-title">The base layer for <span class="accent">decision markets.</span></h1>
+          <p class="hero-sub">One protocol beneath five surfaces. Seer turns questions into priced, tradable signals on Ethereum and Gnosis Chain. Reality.eth settles them, with Kleros as backstop.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary-hero" href="../app/index.html">Start now <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost-hero" href="#protocol">Learn more</a>
+          </div>
+          <div class="hero-meta" aria-label="Protocol facts">
+            <span>Ethereum · Gnosis Chain</span>
+            <span>Swapr AMM</span>
+            <span>Reality.eth + Kleros</span>
+            <span>ERC-20 outcome shares</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Example market illustration">
+          <div class="hero-dot-field" id="hero-dots" aria-hidden="true"></div>
+          <div class="feature-orbit">
+            <article class="feature-card">
+              <div class="feature-head">
+                <span class="micro">Market 06 / Policy</span>
+                <span class="feature-live feature-example"><span class="dot"></span>Example</span>
+              </div>
+              <h2 class="feature-question">Will the Federal Markets Board approve a spot ORB fund by 30 November 2026?</h2>
+              <div class="feature-prob">
+                <div class="big">71<small>%</small></div>
+                <div class="chg"><b>+8.7 pts</b><span>30 days</span></div>
+              </div>
+              <div class="feature-bar">
+                <div class="prob thick" style="--p:71%"><span></span></div>
+                <div class="scale"><span>0</span><span>50</span><span>100</span></div>
+              </div>
+              <div class="feature-rows">
+                <div class="feature-row"><span>Yes</span><b class="yes">71¢</b></div>
+                <div class="feature-row"><span>No</span><b>29¢</b></div>
+              </div>
+              <div class="feature-footer">
+                <span>Vol. $5.63M</span>
+                <span>4,021 traders</span>
+                <span>Closes 30 Nov</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="wrap">
+        <div class="hero-rail" aria-label="Interface pillars">
+          <div><div class="micro">01 / Market layer</div><div class="val">Categorical, scalar, multi-outcome</div></div>
+          <div><div class="micro">02 / Trading</div><div class="val">AMM quotes, not an order book</div></div>
+          <div><div class="micro">03 / Resolution</div><div class="val">Reality.eth, Kleros backstop</div></div>
+          <div><div class="micro">04 / Collateral</div><div class="val">Yield-bearing, ERC-20 shares</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="protocol" aria-labelledby="protocol-title">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="index">01 / FOUNDATION</div>
+          <div>
+            <h2 class="h1" id="protocol-title">The protocol is the product.</h2>
+          </div>
+          <p class="head-note">Each surface is a different way to read the same market primitive. Select a layer to see what it does, and what sits beneath it.</p>
+        </div>
+
+        <div class="stack-grid">
+          <div class="stack-scene reveal">
+            <div class="stack-toolbar">
+              <div class="eyebrow no-rule" style="color:var(--muted)">SURFACE INDEX / 05</div>
+            </div>
+            <div class="stack-axis" aria-hidden="true">
+              <span>SURFACE 05</span><span>SURFACE 04</span><span>SURFACE 03</span><span>SURFACE 02</span><span>SURFACE 01</span><span>CORE</span>
+            </div>
+            <div class="stack-apps" id="stack-apps" role="group" aria-label="Seer surfaces">
+              <!-- injected -->
+            </div>
+            <div class="stack-base" aria-label="Seer protocol foundation">
+              <div class="stack-base-head">
+                <div><div class="label">Core / always below</div><div class="name">Seer protocol</div></div>
+                <div class="coord">ERC-20 shares<br>Ethereum · Gnosis</div>
+              </div>
+              <div class="primitives">
+                <div class="primitive"><div class="pn">01</div><div class="pt">AMM trading</div><div class="pd">Swapr liquidity quotes every share. Price impact is explicit.</div></div>
+                <div class="primitive"><div class="pn">02</div><div class="pt">Conditional Token Framework</div><div class="pd">Pass and fail branches settle independently and verifiably.</div></div>
+                <div class="primitive"><div class="pn">03</div><div class="pt">Reality.eth + Kleros</div><div class="pd">Resolution starts with Reality.eth; Kleros is the backstop.</div></div>
+                <div class="primitive"><div class="pn">04</div><div class="pt">Yield-bearing collateral</div><div class="pd">Capital can keep earning while it backs a position.</div></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="stack-detail reveal" aria-live="polite">
+            <div class="stack-detail-inner" id="stack-detail"></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-sm" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="index">02 / LIFECYCLE</div>
+          <div>
+            <h2 class="h1" id="how-title">A market, end to end.</h2>
+          </div>
+          <p class="head-note">No opaque steps. A market is created, priced, resolved and redeemed against public rules. Every stage has a visible source and a close time.</p>
+        </div>
+        <div class="how-grid">
+          <div class="steps reveal" role="tablist" aria-label="How a market works" aria-orientation="vertical" id="steps">
+            <!-- injected -->
+          </div>
+          <div class="step-panel reveal" id="step-panel"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="numbers" aria-labelledby="numbers-title">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div class="index">03 / PROOF</div>
+          <div>
+            <h2 class="h1" id="numbers-title">Quiet infrastructure, measurable use.</h2>
+          </div>
+          <p class="head-note">A snapshot of the protocol, not a forecast. Every headline figure is illustrative data prepared for this interface study.</p>
+        </div>
+
+        <div class="stat-strip reveal" aria-label="Illustrative protocol statistics">
+          <div class="stat"><div class="stat-label"><span class="micro">Live markets</span><span class="status is-open"><span class="dot"></span>Open</span></div><div class="stat-value">20</div><div class="stat-sub">across 9 categories</div></div>
+          <div class="stat"><div class="stat-label"><span class="micro">30-day volume</span></div><div class="stat-value">$48.2M</div><div class="stat-sub">+12.4% vs prior period</div></div>
+          <div class="stat"><div class="stat-label"><span class="micro">Active traders</span></div><div class="stat-value">12,480</div><div class="stat-sub">2,106 on Gnosis Chain</div></div>
+          <div class="stat"><div class="stat-label"><span class="micro">Resolved without dispute</span></div><div class="stat-value">99.98%</div><div class="stat-sub">Kleros backstop available</div></div>
+        </div>
+        <p class="micro mt-16 reveal balance">Open Grants Round 7 is live: <a class="link-arrow" href="../deep/index.html#p01">30 proposals in Deep</a> and <a class="link-arrow" href="../opportunity/index.html#s01">14 funding outcomes in Opportunity</a>.</p>
+
+        <div class="split-wide mt-32">
+          <div class="panel proof-chart reveal">
+            <div id="volume-chart" aria-label="Monthly volume chart">
+              <div class="skeleton skeleton-line w40" style="height:.625rem"></div>
+              <div class="skeleton mt-16" style="height:13.75rem;border-radius:.75rem"></div>
+            </div>
+          </div>
+          <div class="proof-side reveal">
+            <div>
+              <div class="micro mb-16">Liquidity by chain</div>
+              <div class="chain-bars">
+                <div class="chain-bar"><div class="top"><span>Ethereum</span><span class="mono">$37.6M / 78%</span></div><div class="track"><span style="width:78%"></span></div></div>
+                <div class="chain-bar"><div class="top"><span>Gnosis Chain</span><span class="mono">$10.6M / 22%</span></div><div class="track"><span style="width:22%"></span></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="micro mb-16">Resolution sources</div>
+              <ul class="source-list">
+                <li><span>Reality.eth</span><b>100%</b></li>
+                <li><span>Kleros arbitration</span><b>0.02%</b></li>
+                <li><span>Median resolution time</span><b>4.2h</b></li>
+                <li><span>Disputed outcomes</span><b>3 of 14,806</b></li>
+              </ul>
+            </div>
+            <p class="micro" style="line-height:1.6">Illustrative data · snapshot 17 Oct 2026</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-sm" aria-label="Decision support">
+      <div class="wrap">
+        <div class="quote-band reveal">
+          <div class="quote-grid">
+            <div>
+              <div class="eyebrow" style="color:#8c88a3">The signal</div>
+              <p class="q">A vote costs nothing. A position costs something. <em>That gap is where signal lives.</em></p>
+            </div>
+            <div>
+              <p class="small" style="color:#bfbfe6;max-width:38ch">Seer does not replace judgement. It makes the cost of a belief visible, so reviewers, delegates and funding teams can compare it with everything else they know.</p>
+              <div class="quote-links mt-24">
+                <a href="../deep/index.html">Deep <span aria-hidden="true">↗</span></a>
+                <a href="../futarchy/index.html">Futarchy <span aria-hidden="true">↗</span></a>
+                <a href="../opportunity/index.html">Opportunity <span aria-hidden="true">↗</span></a>
+                <a href="../risk/index.html">Risk <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+    <section class="about-band" id="about" aria-labelledby="about-title">
+      <div class="wrap">
+        <div class="about-head">
+          <div><p class="eyebrow">About / Seer</p><h2 class="h2" id="about-title">Follow the protocol.</h2></div>
+          <p class="about-note">Seer is a prediction-market protocol on Ethereum and Gnosis Chain. Read the work, check the documentation, and find the community in the places below.</p>
+        </div>
+        <div class="about-links">
+          <a class="about-link" href="https://github.com/seer-pm" target="_blank" rel="noopener noreferrer"><span class="about-index">01 / Code</span><span class="about-name">GitHub <span aria-hidden="true">↗</span></span><span class="about-desc">Protocol repositories and open-source work.</span></a>
+          <a class="about-link" href="https://seer-3.gitbook.io/seer-documentation" target="_blank" rel="noopener noreferrer"><span class="about-index">02 / Read</span><span class="about-name">Documentation <span aria-hidden="true">↗</span></span><span class="about-desc">Markets, resolution, liquidity and the protocol.</span></a>
+          <a class="about-link" href="https://x.com/seer_pm?s=11" target="_blank" rel="noopener noreferrer"><span class="about-index">03 / Follow</span><span class="about-name">X <span aria-hidden="true">↗</span></span><span class="about-desc">Product notes and protocol updates.</span></a>
+          <a class="about-link" href="https://t.me/Seerpredictionmarket" target="_blank" rel="noopener noreferrer"><span class="about-index">04 / Chat</span><span class="about-name">Telegram <span aria-hidden="true">↗</span></span><span class="about-desc">Community chat and market discussion.</span></a>
+          <a class="about-link" href="https://discord.com/invite/AYqDkeZuvk" target="_blank" rel="noopener noreferrer"><span class="about-index">05 / Build</span><span class="about-name">Discord <span aria-hidden="true">↗</span></span><span class="about-desc">Builders, traders and reviewers.</span></a>
+        </div>
+      </div>
+    </section>
+
+  <div id="site-footer"></div>
+  <script src="../shared/shared.js?v=37"></script>
+  <script>
+    (function () {
+      const S = window.SEER;
+      const f = S.fmt;
+
+      function dotGrid(host, cols, rows, p, opts) {
+        if (!host) return;
+        const total = cols * rows;
+        let html = '';
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const jitter = ((r * 7 + c * 3) % 5) / 100;
+            const score = (c + r * 0.55) / cols;
+            const on = score < p + jitter;
+            const hot = score > p - 0.13 && score < p + 0.02 && (r + c) % 4 !== 0;
+            html += '<i class="' + (hot ? 'hot' : on ? 'on' : '') + '" style="transition-delay:' + (r * 18 + c * 6) + 'ms"></i>';
+          }
+        }
+        host.innerHTML = html;
+        requestAnimationFrame(() => host.classList.add('resolved'));
+      }
+
+      dotGrid(document.getElementById('hero-dots'), 28, 16, 0.71);
+
+      /* Surface stack */
+      const stackMeta = {
+        app: { role: 'Explorer', markets: 'All types', chain: 'Both chains', example: '20 live markets', line: 'Find a question. Read the price. Take a position.' },
+        deep: { role: 'Many outcomes', markets: 'Multi-scalar', chain: 'Ethereum', example: '30 proposals · Round 7', line: 'A ranked field for questions with more than two answers.' },
+        futarchy: { role: 'Conditional', markets: 'CTF branches', chain: 'Ethereum', example: 'Pass / fail twin markets', line: 'Compare the same metric against its counterfactual.' },
+        opportunity: { role: 'Selection', markets: 'Multi-outcome', chain: 'Ethereum', example: '14 submissions · Round 7', line: 'Let attention concentrate without letting it decide.' },
+        risk: { role: 'Comparison', markets: 'Scalar', chain: 'Both chains', example: '14 protocols × 4 risks', line: 'Compare estimates across type and time horizon.' }
+      };
+      let active = 'app';
+      const appsHost = document.getElementById('stack-apps');
+      const detailHost = document.getElementById('stack-detail');
+      appsHost.innerHTML = S.home.stack.map((l, i) =>
+        '<button class="stack-app" type="button" data-layer="' + l.id + '" aria-pressed="' + (l.id === active) + '" style="--i:' + i + '">' +
+        '<span class="idx">0' + (i + 1) + '</span><span class="name">' + l.name + '</span><span class="tag">' + l.tag + '</span><span class="go" aria-hidden="true">' + S.icons.arrow + '</span></button>'
+      ).join('');
+
+      function paintDetail(id) {
+        const layer = S.home.stack.find((l) => l.id === id) || S.home.stack[0];
+        const meta = stackMeta[layer.id];
+        detailHost.innerHTML =
+          '<div class="layer-kicker"><span class="micro">Surface / ' + meta.role + '</span><span class="tag tag-violet">0' + (S.home.stack.indexOf(layer) + 1) + '</span></div>' +
+          '<h3 class="layer-name">' + layer.name + '</h3>' +
+          '<p class="layer-desc">' + layer.desc + '</p>' +
+          '<div class="facts">' +
+          '<div class="fact"><div class="k">Reads</div><div class="v">' + meta.markets + '</div></div>' +
+          '<div class="fact"><div class="k">Chain</div><div class="v">' + meta.chain + '</div></div>' +
+          '<div class="fact"><div class="k">Scale</div><div class="v">' + meta.example + '</div></div>' +
+          '<div class="fact"><div class="k">Role</div><div class="v">' + meta.line + '</div></div>' +
+          '</div>' +
+          '<div class="layer-link"><a class="link-arrow" href="../' + layer.id + '/index.html' + (layer.id === 'deep' ? '#p01' : layer.id === 'opportunity' ? '#s01' : '') + '">Open ' + layer.name + ' <span aria-hidden="true">' + S.icons.arrow + '</span></a></div>';
+      }
+      function selectLayer(id) {
+        active = id;
+        appsHost.querySelectorAll('.stack-app').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.layer === id)));
+        paintDetail(id);
+      }
+      appsHost.addEventListener('mouseover', (e) => {
+        const b = e.target.closest('.stack-app');
+        if (b) selectLayer(b.dataset.layer);
+      });
+      appsHost.addEventListener('focusin', (e) => {
+        const b = e.target.closest('.stack-app');
+        if (b) selectLayer(b.dataset.layer);
+      });
+      appsHost.addEventListener('click', (e) => {
+        const b = e.target.closest('.stack-app');
+        if (b) selectLayer(b.dataset.layer);
+      });
+      paintDetail(active);
+
+      /* Lifecycle */
+      const steps = [
+        {
+          t: 'Create', d: '01', time: '2–5 min',
+          h: 'Define the question and the source.',
+          p: 'A creator sets a clear question, an outcome type, a close time and the public source that will settle it. Rules are visible before the first trade.',
+          body: '<div class="mock-form"><div class="mock-field"><div class="k">Question</div><div class="v">Will the Federal Markets Board approve a spot ORB fund by 30 Nov 2026?</div></div><div class="mock-split"><div class="mock-field"><div class="k">Outcome type</div><div class="mock-chips"><span class="mock-chip on">Categorical</span><span class="mock-chip">Scalar</span></div></div><div class="mock-field"><div class="k">Close</div><div class="v">30 Nov 2026 · 21:00 UTC</div></div></div><div class="mock-field"><div class="k">Resolution source</div><div class="v">Federal Markets Board register · approval order</div></div></div>'
+        },
+        {
+          t: 'Trade', d: '02', time: 'continuous',
+          h: 'Price the belief, not the bid.',
+          p: 'Outcome shares trade through Swapr liquidity. Every ticket shows the price after impact, the slippage tolerance and the payout if the position is right.',
+          body: '<div class="mock-form"><div class="mock-split"><div class="mock-field"><div class="k">Yes</div><div class="v mock-big violet">71¢</div></div><div class="mock-field"><div class="k">No</div><div class="v mock-big">29¢</div></div></div><div class="mock-field"><div class="k">Trade ticket</div><div class="v">+$100 · avg. 71.4¢ · impact 0.01%</div></div><div class="mock-field"><div class="k">Max payout</div><div class="v">$140.06 if Yes resolves</div></div></div>'
+        },
+        {
+          t: 'Resolve', d: '03', time: 'at close',
+          h: 'A public answer, with a backstop.',
+          p: 'The market resolves against the named source. If the answer is disputed, Reality.eth escalates to Kleros arbitration rather than an internal committee.',
+          body: '<div class="path-diagram"><div class="path-node on"><span class="dot"></span><span class="k">Named public source</span><span class="s">FMB register</span></div><div class="path-node on"><span class="dot"></span><span class="k">Reality.eth proposal</span><span class="s">bond posted</span></div><div class="path-node"><span class="dot"></span><span class="k">Dispute window</span><span class="s">48 hours</span></div><div class="path-node"><span class="dot"></span><span class="k">Kleros backstop</span><span class="s">if challenged</span></div></div>'
+        },
+        {
+          t: 'Redeem', d: '04', time: 'after resolution',
+          h: 'Settle the position, keep the receipt.',
+          p: 'Winning shares redeem for $1 each. Losing shares expire worthless. Liquidity providers earn fees plus incentives throughout the market’s life.',
+          body: '<div class="receipt"><div class="receipt-row"><span>Position</span><b>140.06 YES</b></div><div class="receipt-row"><span>Resolution</span><b style="color:var(--violet-text)">YES</b></div><div class="receipt-row"><span>Cost basis</span><b>$100.00</b></div><div class="receipt-row receipt-total"><span>Redeemable</span><b>$140.06</b></div></div>'
+        }
+      ];
+      const stepsHost = document.getElementById('steps');
+      const panelHost = document.getElementById('step-panel');
+      stepsHost.innerHTML = steps.map((s, i) => '<button class="step-btn" type="button" role="tab" id="step-tab-' + i + '" aria-selected="' + (i === 0) + '" aria-controls="step-panel" data-step="' + i + '"><span class="n">' + s.d + '</span><span class="t">' + s.t + '</span><span class="d">' + s.time + '</span></button>').join('');
+      function paintStep(i) {
+        const s = steps[i];
+        panelHost.innerHTML = '<div class="step-panel-head"><div class="micro">STEP ' + s.d + ' / ' + s.time + '</div><span class="tag tag-outline">' + s.t + '</span></div><div class="step-panel-body"><div class="step-copy"><h3>' + s.h + '</h3><p>' + s.p + '</p></div>' + s.body + '</div>';
+        stepsHost.querySelectorAll('.step-btn').forEach((b, j) => b.setAttribute('aria-selected', String(i === j)));
+      }
+      stepsHost.addEventListener('click', (e) => {
+        const b = e.target.closest('.step-btn');
+        if (b) paintStep(Number(b.dataset.step));
+      });
+      stepsHost.addEventListener('keydown', (e) => {
+        const b = e.target.closest('.step-btn');
+        if (!b) return;
+        let i = Number(b.dataset.step);
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') i = (i + 1) % steps.length;
+        else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') i = (i - 1 + steps.length) % steps.length;
+        else return;
+        e.preventDefault();
+        paintStep(i);
+        stepsHost.querySelectorAll('.step-btn')[i].focus();
+      });
+      paintStep(0);
+
+      /* Proof chart with skeleton */
+      setTimeout(() => {
+        S.charts.line(document.getElementById('volume-chart'), {
+          series: [{ name: '30-day volume', values: S.home.activity, area: true }],
+          labels: S.home.activityLabels,
+          height: 252,
+          yMin: 2,
+          yMax: 6.2,
+          yFormat: (v) => '$' + Number(v).toFixed(1) + 'M',
+          label: 'Monthly Seer volume, illustrative data',
+          title: 'Monthly volume',
+          caption: 'Illustrative data · Sep 2025 – Oct 2026',
+          unit: '$M',
+          xTicks: 6
+        });
+      }, 500);
+
+      /* Reveal elements injected late */
+      document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+    })();
+  </script>
+</body>
+</html>

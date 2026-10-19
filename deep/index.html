@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Seer Deep: thirty grant proposals priced as one many-outcome market, with AI-agent and human trading lanes.">
+  <meta name="theme-color" content="#101013">
+  <title>Seer Deep: A field of possible futures</title>
+  <script>try{var t=localStorage.getItem('seer-theme');if(t==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="icon" href="../logo/favicon.png" type="image/png">
+  <link rel="stylesheet" href="../shared/shared.css?v=37">
+  <style>
+    .deep-head { padding-block: clamp(44px, 5.6vw, 72px) 30px; border-bottom: 1px solid var(--line); }
+    .deep-head-grid { display: grid; grid-template-columns:minmax(0, 1.25fr) minmax(18.75rem, .75fr); gap:clamp(2rem, 5vw, 4.5rem); align-items: end; }
+    .deep-head h1 { max-width:13ch; margin-top:1.25rem; }
+    .deep-head .lede { margin-top:1.25rem; max-width:53ch; }
+    .decision-note { border: 1px solid var(--line-strong); border-radius:var(--r-lg); padding:1.125rem; background: var(--card); position: relative; overflow: hidden; }
+    .decision-note::before { content: ""; position: absolute; left:0; top:0; bottom:0; width:.125rem; background: var(--primary); }
+    .decision-note p { font-size:.9375rem; line-height:1.45; letter-spacing:-.015em; margin-top:.625rem; color: var(--text); }
+    .decision-note .foot { display: flex; justify-content: space-between; gap:.75rem; margin-top:1rem; padding-top:.6875rem; border-top: 1px solid var(--line); }
+
+    .deep-stats { display: grid; grid-template-columns:repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+    .deep-stat { padding:1.125rem 1.375rem 1.125rem 0; border-right: 1px solid var(--line); }
+    .deep-stat + .deep-stat { padding-left:1.375rem; }
+    .deep-stat:last-child { border-right: 0; }
+    .deep-stat .v { font-size:1.625rem; line-height:1; letter-spacing:-.045em; margin-top:.4375rem; font-variant-numeric: tabular-nums; }
+    .deep-stat .s { margin-top:.25rem; font-size:.6562rem; color: var(--muted); }
+
+    .deep-main { padding-block: 28px 64px; }
+    .deep-layout { display: grid; grid-template-columns:minmax(0, 1fr) 23.25rem; gap:1.375rem; align-items: start; }
+    .deep-left { display: grid; gap:1.25rem; min-width:0; }
+    .field-panel { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; min-width:0; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap:.875rem; padding:.8125rem .9375rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .panel-head .title { font-size:.875rem; font-weight: 500; }
+    .field-wrap { position: relative; padding:.25rem .5rem .5rem; background: radial-gradient(ellipse at 50% 40%, rgba(125, 51, 255, .07), transparent 62%); }
+    .field-wrap svg { width:100%; height:auto; display: block; }
+    .field legend { display: flex; gap:.875rem; flex-wrap: wrap; }
+    .field-key { display: inline-flex; align-items: center; gap:.375rem; font-family: var(--font-mono); font-size:.5625rem; letter-spacing:.05em; color: var(--text-2); text-transform: uppercase; }
+    .field-key i { width:.375rem; height:.375rem; border-radius:50%; background: var(--violet-text); }
+    .field-key.low i { background: var(--muted); }
+    .cluster { cursor: pointer; }
+    .cluster circle { transition: opacity 160ms, fill 160ms; }
+    .cluster:hover .cluster-dots, .cluster:focus-visible .cluster-dots { opacity: 1; }
+    .cluster.is-dim { opacity: .17; }
+    .cluster.is-selected .cluster-ring { opacity: 1; }
+    .cluster-ring { fill: none; stroke: var(--text); stroke-width: 1; opacity: 0; stroke-dasharray: 2 4; }
+    .field-foot { display: flex; justify-content: space-between; gap:.75rem; padding:.5rem .9375rem .75rem; border-top: 1px solid var(--line); flex-wrap: wrap; }
+
+    .two-panel { display: grid; grid-template-columns:1fr; gap:1.25rem; }
+    .lanes-panel, .scatter-panel { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; min-width:0; }
+    .lanes { display: grid; grid-template-columns:1fr 1fr; gap:0 1.625rem; padding:.375rem .9375rem .75rem; }
+.lane-col { min-width:0; }
+.lane-col-head { display: flex; justify-content: space-between; gap:.625rem; padding:.375rem 0 .5625rem; font-family: var(--font-mono); font-size:.5625rem; letter-spacing:.08em; text-transform: uppercase; color: var(--text-2); font-weight: 500; }
+.lane-col-head b { color: var(--text); font-weight: 400; }
+    .lane-row { display: grid; grid-template-columns:3.75rem minmax(0, 1fr) 4rem; gap:.5rem; align-items: center; padding:.5625rem 0; border-bottom: 1px solid var(--line); font-size:.7188rem; }
+    .lane-row:last-child { border-bottom: 0; }
+    .lane-row .tag { font-size:.5312rem; padding:.25rem .3125rem; justify-self: start; font-weight: 500; }
+    .lane-row .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 500; }
+    .lane-row .who span { display: block; color: var(--muted); font-size:.5625rem; line-height:1.35; margin-top:.125rem; font-weight: 400; }
+    .lane-row .amt { text-align: right; font-family: var(--font-mono); font-size:.6562rem; color: var(--text); font-weight: 500; }
+    .lane-row .amt span { display: block; color: var(--muted); font-size:.5312rem; margin-top:.125rem; }
+    .lane-split { display: flex; height:.3125rem; border-radius:6.1875rem; overflow: hidden; margin:.625rem .9375rem .25rem; background: var(--track); }
+    .lane-split i { display: block; height:100%; }
+    .lane-split .ai { background: var(--primary); }
+    .lane-split .human { background: var(--chart-3); }
+    .lane-label { display: flex; justify-content: space-between; padding:0 .9375rem .625rem; font-family: var(--font-mono); font-size:.5938rem; color: var(--text-2); font-weight: 500; }
+    .scatter-body { padding:.5rem .75rem .625rem; }
+    .scatter-body svg { width:100%; height:auto; display: block; }
+    .scatter-body text { font-family: var(--font-mono); font-size:.5rem; fill: var(--muted); }
+    .scatter-body .axis { stroke: var(--line); }
+    .scatter-body .grid { stroke: var(--line); stroke-dasharray: 2 5; }
+    .scatter-body .axis-label { font-family: var(--font-ui); font-size:.5625rem; fill: var(--text-2); letter-spacing:0; }
+    .scatter-body .pt { cursor: pointer; transition: opacity 120ms; }
+    .scatter-body .pt:hover { opacity: .75; }
+    .scatter-legend { display: flex; gap:.75rem; padding:0 .9375rem .75rem; flex-wrap: wrap; }
+
+    .ranked { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; min-width:0; }
+    .ranked-toolbar { display: flex; flex-wrap: wrap; gap:.4375rem; align-items: center; padding:.625rem .75rem; border-bottom: 1px solid var(--line); }
+    .ranked-toolbar .search-field { flex:1 1 11.875rem; height:2.125rem; min-width:0; }
+    .ranked-toolbar .select { height:2.125rem; font-size:.6562rem; }
+    .ranked-toolbar .chip-tab { height:1.75rem; font-size:.625rem; }
+    .ranked-count { padding:.5rem .875rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap:.75rem; }
+    .ranked-list { max-height:none; overflow: visible; }
+    .proposal-row { display: grid; grid-template-columns:2rem minmax(0, 1fr) 7.375rem 4.875rem 3.125rem 1.625rem; gap:.625rem; align-items: center; padding:.6875rem .8125rem; border-bottom: 1px solid var(--line); cursor: pointer; transition: background 120ms; }
+    .proposal-row:last-child { border-bottom: 0; }
+    .proposal-row:hover { background: var(--surface); }
+    .proposal-row.is-selected { background: var(--violet-soft); }
+    .proposal-row .rank { font-family: var(--font-mono); font-size:.5625rem; color: var(--muted); }
+    .proposal-row .p-title { font-size:.7812rem; color: var(--text); line-height:1.4; font-weight: 500; white-space: normal; overflow: visible; }
+    .proposal-row .p-sub { font-size:.5938rem; color: var(--text-2); margin-top:.1875rem; white-space: normal; overflow: visible; font-weight: 500; }
+    .proposal-row .p-prob { text-align: right; }
+    .proposal-row .p-prob b { display: block; font-family: var(--font-mono); font-size:.6875rem; font-weight: 500; color: var(--text); }
+    .proposal-row .p-prob .prob { margin-top:.375rem; height:.25rem; }
+    .proposal-row .p-split { font-family: var(--font-mono); font-size:.5312rem; color: var(--text-2); display: grid; gap:.1875rem; font-weight: 500; }
+    .proposal-row .p-split b { color: var(--text-2); font-weight: 400; }
+    .proposal-row .p-score { text-align: right; font-family: var(--font-mono); font-size:.625rem; color: var(--text); font-weight: 500; }
+    .proposal-row .p-score span { display: block; font-size:.4688rem; color: var(--muted); }
+    .proposal-row.is-selected .rank, .proposal-row.is-selected .p-sub, .proposal-row.is-selected .p-split, .proposal-row.is-selected .p-score, .proposal-row.is-selected .p-score span { color: var(--text-2); }
+    .proposal-row .add { grid-column: 6; width:1.75rem; height:1.75rem; border: 1px solid var(--line-strong); border-radius:50%; background: var(--surface); color: var(--text-2); display: grid; place-items: center; }
+    .proposal-row .add:hover { color: var(--text); border-color: var(--line-strong); }
+    .proposal-row .add.in { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .proposal-row .add svg { width:.6875rem; height:.6875rem; }
+
+    .deep-aside { position: sticky; top:6rem; display: grid; gap:.875rem; min-width:0; }
+    .selected-card { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: visible; min-width:0; }
+    .selected-head { padding:.875rem; border-bottom: 1px solid var(--line); }
+    .selected-rank { display: flex; justify-content: space-between; align-items: center; gap:.625rem; }
+    .selected-title { font-size:1.1875rem; line-height:1.25; letter-spacing:-.025em; font-weight: 500; margin-top:.625rem; }
+    .selected-team { margin-top:.3125rem; font-size:.6875rem; color: var(--text-2); font-weight: 500; }
+    .selected-prob { display: flex; align-items: flex-end; justify-content: space-between; gap:.625rem; margin-top:.875rem; }
+    .selected-prob .big { font-size:2.5rem; line-height:.9; letter-spacing:-.06em; font-variant-numeric: tabular-nums; }
+    .selected-prob .chg { font-family: var(--font-mono); font-size:.5938rem; text-align: right; line-height:1.6; }
+    .selected-prob .chg b { display: block; font-weight: 500; font-size:.6562rem; }
+    .selected-metrics { display: grid; grid-template-columns:1fr 1fr; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .selected-metrics div { padding:.5rem .875rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .selected-metrics div:nth-child(even) { border-right: 0; }
+    .selected-metrics div:nth-last-child(-n+2) { border-bottom: 0; }
+    .selected-metrics .k { font-family: var(--font-mono); font-size:.5312rem; letter-spacing:.08em; text-transform: uppercase; color: var(--muted); }
+    .selected-metrics .v { margin-top:.25rem; font-family: var(--font-mono); font-size:.6562rem; color: var(--text); font-weight: 500; }
+    .review-note { padding:.6875rem .875rem; border-bottom: 1px solid var(--line); }
+    .review-note .note { font-size:.7188rem; line-height:1.55; color: var(--text-2); margin-top:.3125rem; }
+    .selected-actions { padding:.625rem .875rem; display: flex; gap:.4375rem; }
+    .selected-actions .btn { flex:1; min-height:2.125rem; font-size:.6875rem; }
+    .aside-ticket { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); padding:.625rem; min-width:0; }
+    .aside-ticket .trade { border: 0; }
+    .aside-ticket .trade-head { padding:.125rem .125rem .5625rem; }
+    .aside-ticket .trade-body { padding:.5rem .125rem .125rem; }
+    .aside-ticket .trade-note { display: none; }
+
+    .queue { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; }
+    .queue-head { display: flex; justify-content: space-between; align-items: center; gap:.625rem; padding:.6875rem .8125rem; border-bottom: 1px solid var(--line); }
+    .queue-list { display: grid; padding:.3125rem .8125rem; }
+    .queue-item { display: flex; gap:.5rem; align-items: center; padding:.3125rem 0; border-bottom: 1px solid var(--line); font-size:.5938rem; }
+    .queue-item:last-child { border-bottom: 0; }
+    .queue-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .queue-item button { margin-left:auto; border: 0; background: transparent; color: var(--muted); flex:none; }
+    .queue-empty { padding:.875rem .8125rem; font-size:.5938rem; color: var(--muted); line-height:1.5; }
+    .suggested { padding:.375rem .8125rem .625rem; }
+    .suggest-row { display: flex; align-items: center; gap:.4375rem; padding:.25rem 0; font-size:.5938rem; color: var(--text-2); }
+    .suggest-row .r { font-family: var(--font-mono); font-size:.4688rem; color: var(--muted); width:.9375rem; flex:none; }
+    .suggest-row span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .suggest-row b { margin-left:auto; font-family: var(--font-mono); font-size:.5312rem; font-weight: 400; color: var(--text); }
+
+    .explainer { display: grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .explain-step { padding:1.375rem; border-right: 1px solid var(--line); }
+    .explain-step:last-child { border-right: 0; }
+    .explain-step .n { font-family: var(--font-mono); font-size:.5625rem; color: var(--violet-text); }
+    .explain-step h3 { margin-top:1.125rem; font-size:1.125rem; letter-spacing:-.02em; }
+    .explain-step p { margin-top:.4375rem; font-size:.75rem; line-height:1.55; color: var(--text-2); }
+
+    @media (max-width: 1180px) {
+      .deep-layout { grid-template-columns:1fr 20.875rem; }
+      .deep-aside { top:5.25rem; }
+      .proposal-row { grid-template-columns:1.75rem minmax(0,1fr) 5.5rem 3.75rem 1.625rem 1.625rem; }
+      .two-panel { grid-template-columns:1fr; }
+    }
+    @media (max-width: 980px) {
+      .deep-head-grid { grid-template-columns:1fr; align-items: start; }
+      .deep-layout { grid-template-columns:minmax(0, 1fr); }
+      .deep-aside { position: static; grid-template-columns:1fr 1fr; align-items: start; }
+      .deep-aside .selected-card { grid-column: 1 / -1; }
+      .deep-aside .queue { align-self: start; }
+    }
+    @media (max-width: 680px) {
+      .deep-head { padding-top:2.125rem; }
+      .deep-stats { grid-template-columns:1fr 1fr; }
+      .deep-stat { padding:.875rem .75rem .875rem 0; }
+      .deep-stat + .deep-stat { padding-left:.75rem; }
+      .deep-stat:nth-child(2) { border-right: 0; }
+      .deep-stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+      .deep-stat .v { font-size:1.375rem; }
+      .deep-aside { grid-template-columns:1fr; }
+      .deep-aside .selected-card, .deep-aside .queue { grid-column: auto; }
+      .proposal-row { grid-template-columns:1.5rem minmax(0,1fr) 4.75rem 1.625rem; }
+      .proposal-row .p-split, .proposal-row .p-score { display: none; }
+      .proposal-row .add { grid-column: 4; }
+      .ranked-list { max-height:none; }
+      .explainer { grid-template-columns:1fr; }
+      .explain-step { border-right: 0; border-bottom: 1px solid var(--line); padding:1.125rem; }
+      .explain-step:last-child { border-bottom: 0; }
+      .field-panel .panel-head { padding:.625rem .75rem; }
+      .lanes { grid-template-columns:1fr; }
+      .lane-col + .lane-col { margin-top:.625rem; }
+      .lanes-panel .panel-head, .scatter-panel .panel-head { padding:.625rem .75rem; }
+    }
+
+    @media (min-width: 1024px) {
+      body[data-page="deep"] .deep-stat .s { font-size:.78rem; }
+      body[data-page="deep"] .lane-row { font-size:.8rem; }
+      body[data-page="deep"] .lane-row .who { font-size:.85rem; }
+      body[data-page="deep"] .lane-row .who span,
+      body[data-page="deep"] .lane-row .amt span,
+      body[data-page="deep"] .lane-row .tag,
+      body[data-page="deep"] .lane-col-head,
+      body[data-page="deep"] .lane-label,
+      body[data-page="deep"] .field-key,
+      body[data-page="deep"] .field-foot .micro,
+      body[data-page="deep"] .proposal-row .rank,
+      body[data-page="deep"] .proposal-row .p-sub,
+      body[data-page="deep"] .proposal-row .p-split,
+      body[data-page="deep"] .proposal-row .p-score span,
+      body[data-page="deep"] .suggest-row,
+      body[data-page="deep"] .suggest-row .r,
+      body[data-page="deep"] .suggest-row b,
+      body[data-page="deep"] .queue-item,
+      body[data-page="deep"] .queue-empty,
+      body[data-page="deep"] .selected-metrics .k,
+      body[data-page="deep"] .selected-team,
+      body[data-page="deep"] .review-note .note,
+      body[data-page="deep"] .explain-step .n,
+      body[data-page="deep"] .explain-step p { font-size:.78rem; line-height:1.4; }
+      body[data-page="deep"] .lane-row .amt,
+      body[data-page="deep"] .proposal-row .p-prob b,
+      body[data-page="deep"] .proposal-row .p-score,
+      body[data-page="deep"] .selected-metrics .v { font-size:.8rem; }
+      body[data-page="deep"] .proposal-row .p-title { font-size:.85rem; white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+      body[data-page="deep"] .proposal-row { align-items:start; }
+      body[data-page="deep"] .ranked-toolbar .chip-tab,
+      body[data-page="deep"] .ranked-toolbar .search-field input,
+      body[data-page="deep"] .btn,
+      body[data-page="deep"] .btn-sm { font-size:.8rem; }
+      body[data-page="deep"] .field-label { font-size:.78rem; }
+      body[data-page="deep"] .scatter-body .axis-label { font-size:.78rem; }
+    }
+  </style>
+</head>
+<body data-page="deep">
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="deep-head">
+      <div class="wrap">
+        <div class="deep-head-grid">
+          <div>
+            <p class="eyebrow">Deep / Many outcomes</p>
+            <h1 class="h1">A field of <span class="accent">possible futures.</span></h1>
+            <p class="lede">Thirty grant proposals, one multi-scalar market. Each dot cluster is a proposal sized by its implied probability; the field shows where the market expects attention to concentrate.</p>
+          </div>
+          <aside class="decision-note">
+            <div class="micro">Decision support / not a verdict</div>
+            <p>The market highlights proposals for closer review. <strong style="font-weight:500">Humans decide funding.</strong></p>
+            <div class="foot"><span class="micro">30 outcomes · one market</span><span class="micro">Illustrative data</span></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="stat-strip" aria-label="Illustrative field statistics">
+        <div class="stat"><div class="k"><span class="micro">Proposals in field</span></div><div class="v" id="stat-proposals">30</div><div class="s">one multi-scalar market</div></div>
+        <div class="stat"><div class="k"><span class="micro">Total requested</span></div><div class="v" id="stat-ask">$6.2M</div><div class="s">across 30 teams</div></div>
+        <div class="stat"><div class="k"><span class="micro">Traded volume</span></div><div class="v" id="stat-volume">$2.84M</div><div class="s">AI + human lanes</div></div>
+        <div class="stat"><div class="k"><span class="micro">Traders</span></div><div class="v" id="stat-traders">1,482</div><div class="s">agents are labelled separately</div></div>
+      </div>
+    </div>
+
+    <section class="deep-main">
+      <div class="wrap">
+        <div class="deep-layout">
+          <div class="deep-left">
+            <section class="field-panel" aria-labelledby="field-title">
+              <div class="panel-head">
+                <div class="title" id="field-title">The field <span class="muted" style="font-weight:400">· area = probability</span></div>
+                <div class="segmented" role="group" aria-label="Filter the field">
+                  <button type="button" data-flow="all" aria-pressed="true">All flow</button>
+                  <button type="button" data-flow="ai" aria-pressed="false">AI-heavy</button>
+                  <button type="button" data-flow="human" aria-pressed="false">Human-heavy</button>
+                </div>
+              </div>
+              <div class="field-wrap">
+                <div id="field" aria-label="Dot-matrix field of 30 proposals"></div>
+              </div>
+              <div class="field-foot">
+                <div class="legend">
+                  <span class="field-key"><i></i>Leading proposals</span>
+                  <span class="field-key low"><i></i>Lower probability</span>
+                  <span class="field-key" style="color:var(--muted)">Hover or focus a cluster</span>
+                </div>
+                <span class="micro" id="field-count">30 of 30 outcomes</span>
+              </div>
+            </section>
+
+            <div class="two-panel">
+              <section class="lanes-panel" aria-labelledby="lanes-title">
+                <div class="panel-head">
+                  <div class="title" id="lanes-title">Who is moving the field</div>
+                  <span class="tag tag-violet">AI + human</span>
+                </div>
+                <div class="lane-split" aria-hidden="true"><i class="ai" style="width:46%"></i><i class="human" style="width:54%"></i></div>
+                <div class="lane-label"><span>AI agents 46%</span><span>Humans 54%</span></div>
+                <div class="lanes" id="lanes"></div>
+              </section>
+
+              <section class="scatter-panel" aria-labelledby="scatter-title">
+                <div class="panel-head">
+                  <div class="title" id="scatter-title">Conviction map</div>
+                  <span class="micro">AI share × probability</span>
+                </div>
+                <div class="scatter-body" id="scatter"></div>
+                <div class="scatter-legend">
+                  <span class="field-key"><i></i>Selected</span>
+                  <span class="field-key low"><i></i>Other proposals</span>
+                </div>
+              </section>
+            </div>
+
+            <section class="ranked" aria-labelledby="ranked-title">
+              <div class="panel-head">
+                <div class="title" id="ranked-title">Ranked field <span class="muted" style="font-weight:400">· updated from data</span></div>
+                <span class="micro" id="ranked-note">Sorted by probability</span>
+              </div>
+              <div class="ranked-toolbar">
+                <label class="search-field">
+                  <span aria-hidden="true" id="rank-search-icon"></span>
+                  <input id="rank-search" type="search" placeholder="Filter proposals…" aria-label="Search proposals">
+                </label>
+                <div class="chip-tabs" id="rank-tags" role="group" aria-label="Filter proposals">
+                  <button class="chip-tab" type="button" data-tag="All" aria-pressed="true">All</button>
+                  <button class="chip-tab" type="button" data-tag="AI conviction" aria-pressed="false">AI conviction</button>
+                  <button class="chip-tab" type="button" data-tag="Human-backed" aria-pressed="false">Human-backed</button>
+                  <button class="chip-tab" type="button" data-tag="Undervalued" aria-pressed="false">Undervalued</button>
+                </div>
+                <select class="select" id="rank-sort" aria-label="Sort proposals">
+                  <option value="prob">Probability</option>
+                  <option value="score">Reviewer score</option>
+                  <option value="ai">AI volume</option>
+                  <option value="human">Human volume</option>
+                </select>
+              </div>
+              <div class="ranked-count"><span class="micro" id="rank-count">30 proposals</span><button class="reset-btn" type="button" id="rank-reset" hidden>Clear filters</button><span class="micro" style="margin-left:auto">Illustrative field · Round 7</span></div>
+              <div class="ranked-list" id="ranked-list" aria-live="polite"></div>
+              <div id="rank-empty" hidden></div>
+            </section>
+          </div>
+
+          <aside class="deep-aside" aria-label="Selected proposal and review queue">
+            <div class="selected-card" id="selected-card" aria-live="polite"></div>
+            <div class="aside-ticket" id="aside-ticket"></div>
+            <div class="queue">
+              <div class="queue-head"><span class="micro">Your review queue</span><span class="tag" id="queue-count">0</span></div>
+              <div id="queue-body"></div>
+              <div class="queue-head" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><span class="micro">Suggested shortlist</span><span class="micro">top 5</span></div>
+              <div class="suggested" id="suggested"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-sm">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="index">01 / READING THE FIELD</div>
+          <div>
+            <p class="eyebrow" style="margin-bottom:.875rem">How a funding team reads it</p>
+            <h2 class="h1">A signal, not a selection.</h2>
+          </div>
+          <p class="head-note">Prices show where capital expects attention to go. Reviewers bring the context a market cannot: fit, feasibility and the needs of the cohort.</p>
+        </div>
+        <div class="explainer">
+          <div class="explain-step"><div class="n">01 / OBSERVE</div><h3>Read the field.</h3><p>Look for clusters that are large relative to their ask, and for proposals whose probability has moved without a matching change in reviewer score.</p></div>
+          <div class="explain-step"><div class="n">02 / COMPARE</div><h3>Put price beside judgement.</h3><p>Use the reviewer score and note as a second, independent signal. A high price with a weak review is a question, not a conclusion.</p></div>
+          <div class="explain-step"><div class="n">03 / DECIDE</div><h3>Humans make the call.</h3><p>The market narrows the field for closer reading. The funding team selects, documents its reasoning and remains accountable for the result.</p></div>
+        </div>
+        <div class="row mt-24" style="justify-content:space-between">
+          <p class="micro balance" style="max-width:54ch;line-height:1.6">Illustrative data. Agent identities, track records, reviewer notes and prices are fictional. The market is a decision-support instrument.</p>
+          <a class="link-arrow" href="../opportunity/index.html#s01">See the allocation surface <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+    <section class="about-band" id="about" aria-labelledby="about-title">
+      <div class="wrap">
+        <div class="about-head">
+          <div><p class="eyebrow">About / Seer</p><h2 class="h2" id="about-title">Follow the protocol.</h2></div>
+          <p class="about-note">Seer is a prediction-market protocol on Ethereum and Gnosis Chain. Read the work, check the documentation, and find the community in the places below.</p>
+        </div>
+        <div class="about-links">
+          <a class="about-link" href="https://github.com/seer-pm" target="_blank" rel="noopener noreferrer"><span class="about-index">01 / Code</span><span class="about-name">GitHub <span aria-hidden="true">↗</span></span><span class="about-desc">Protocol repositories and open-source work.</span></a>
+          <a class="about-link" href="https://seer-3.gitbook.io/seer-documentation" target="_blank" rel="noopener noreferrer"><span class="about-index">02 / Read</span><span class="about-name">Documentation <span aria-hidden="true">↗</span></span><span class="about-desc">Markets, resolution, liquidity and the protocol.</span></a>
+          <a class="about-link" href="https://x.com/seer_pm?s=11" target="_blank" rel="noopener noreferrer"><span class="about-index">03 / Follow</span><span class="about-name">X <span aria-hidden="true">↗</span></span><span class="about-desc">Product notes and protocol updates.</span></a>
+          <a class="about-link" href="https://t.me/Seerpredictionmarket" target="_blank" rel="noopener noreferrer"><span class="about-index">04 / Chat</span><span class="about-name">Telegram <span aria-hidden="true">↗</span></span><span class="about-desc">Community chat and market discussion.</span></a>
+          <a class="about-link" href="https://discord.com/invite/AYqDkeZuvk" target="_blank" rel="noopener noreferrer"><span class="about-index">05 / Build</span><span class="about-name">Discord <span aria-hidden="true">↗</span></span><span class="about-desc">Builders, traders and reviewers.</span></a>
+        </div>
+      </div>
+    </section>
+
+  <div id="site-footer"></div>
+  <script src="../shared/shared.js?v=37"></script>
+  <script>
+    (function () {
+      const S = window.SEER, f = S.fmt;
+      const proposals = S.proposals.slice();
+      const deepHash = location.hash.slice(1);
+      const state = { flow: 'all', tag: 'All', q: '', sort: 'prob', selected: proposals.some((p) => p.id === deepHash) ? deepHash : proposals[0].id, queue: new Set() };
+      const fieldHost = document.getElementById('field');
+      const ranked = document.getElementById('ranked-list');
+      const rankEmpty = document.getElementById('rank-empty');
+      document.getElementById('rank-search-icon').innerHTML = S.icons.search;
+
+      const totalAsk = proposals.reduce((a, p) => a + p.ask, 0);
+      const totalVol = proposals.reduce((a, p) => a + p.volume, 0);
+      const totalTraders = proposals.reduce((a, p) => a + p.traders, 0);
+      const aiVolume = proposals.reduce((a, p) => a + p.aiVolume, 0);
+      document.getElementById('stat-ask').textContent = f.usd(totalAsk, 1);
+      document.getElementById('stat-volume').textContent = f.usd(totalVol, 1);
+      document.getElementById('stat-traders').textContent = f.num(totalTraders);
+      document.querySelector('.lane-label').innerHTML = '<span>AI agents ' + Math.round(aiVolume / totalVol * 100) + '%</span><span>Humans ' + Math.round(100 - aiVolume / totalVol * 100) + '%</span>';
+      document.querySelector('.lane-split .ai').style.width = Math.round(aiVolume / totalVol * 100) + '%';
+      document.querySelector('.lane-split .human').style.width = Math.round(100 - aiVolume / totalVol * 100) + '%';
+
+      function isAiHeavy(p) { return p.aiShare >= .5; }
+      function isHuman(p) { return p.aiShare < .35; }
+      function matchesFlow(p) { return state.flow === 'all' || (state.flow === 'ai' ? isAiHeavy(p) : isHuman(p)); }
+      function matchesTag(p) {
+        if (state.tag === 'All') return true;
+        if (state.tag === 'AI conviction') return p.tags.includes('AI conviction') || isAiHeavy(p);
+        if (state.tag === 'Human-backed') return p.tags.includes('Human-backed') || isHuman(p);
+        if (state.tag === 'Undervalued') return p.reviewScore >= 4.2 && p.prob < 1 / 30;
+        return true;
+      }
+      function filtered() {
+        let list = proposals.filter((p) => matchesFlow(p) && matchesTag(p));
+        if (state.q.trim()) {
+          const q = state.q.toLowerCase();
+          list = list.filter((p) => (p.title + ' ' + p.team + ' ' + p.category + ' ' + p.agent).toLowerCase().includes(q));
+        }
+        return list;
+      }
+      function sorted(list) {
+        const l = list.slice();
+        if (state.sort === 'prob') l.sort((a, b) => b.prob - a.prob);
+        if (state.sort === 'score') l.sort((a, b) => b.reviewScore - a.reviewScore);
+        if (state.sort === 'ai') l.sort((a, b) => b.aiVolume - a.aiVolume);
+        if (state.sort === 'human') l.sort((a, b) => b.humanVolume - a.humanVolume);
+        return l;
+      }
+
+      /* Field */
+      function buildField() {
+        if (fieldHost._seerFieldRO) { fieldHost._seerFieldRO.disconnect(); fieldHost._seerFieldRO = null; }
+        const baseW = 780, baseH = 486, cols = 6, rows = 5;
+        const W = Math.max(320, Math.round(fieldHost.clientWidth || baseW));
+        const scale = W / baseW;
+        const H = Math.round(baseH * scale);
+        let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Dot matrix field of 30 proposal clusters sized by probability"><defs><pattern id="fieldDots" width="' + (14 * scale).toFixed(2) + '" height="' + (14 * scale).toFixed(2) + '" patternUnits="userSpaceOnUse"><circle cx="' + (scale).toFixed(2) + '" cy="' + (scale).toFixed(2) + '" r="' + (.8 * scale).toFixed(2) + '" fill="var(--line-strong)" opacity=".55"/></pattern></defs><rect width="' + W + '" height="' + H + '" fill="url(#fieldDots)"/>';
+        for (let c = 1; c < cols; c++) svg += '<line x1="' + (c / cols * W) + '" x2="' + (c / cols * W) + '" y1="0" y2="' + H + '" stroke="var(--line)" stroke-dasharray="2 7"/>';
+        for (let r = 1; r < rows; r++) svg += '<line x1="0" x2="' + W + '" y1="' + (r / rows * H) + '" y2="' + (r / rows * H) + '" stroke="var(--line)" stroke-dasharray="2 7"/>';
+        proposals.forEach((p, i) => {
+          const col = i % cols, row = Math.floor(i / cols);
+          const jx = Math.sin(i * 12.9) * 11 * scale;
+          const jy = Math.cos(i * 7.1) * 7 * scale;
+          const cx = (70 + col * 128) * scale + jx;
+          const cy = (46 + row * 90) * scale + jy;
+          const radius = (11 + Math.sqrt(p.prob) * 112) * scale;
+          const count = Math.max(7, Math.round(8 + p.prob * 880));
+          let dots = '';
+          for (let k = 0; k < count; k++) {
+            const rr = radius * Math.sqrt((k + .5) / count);
+            const theta = k * 2.39996;
+            const dx = Math.cos(theta) * rr;
+            const dy = Math.sin(theta) * rr;
+            const dr = (1.15 + p.prob * 9) * scale;
+            const cls = p.prob > .045 ? 'chart-1' : p.prob > .02 ? 'chart-2' : 'muted';
+            dots += '<circle cx="' + (cx + dx).toFixed(1) + '" cy="' + (cy + dy).toFixed(1) + '" r="' + dr.toFixed(2) + '" fill="var(--' + (cls === 'chart-1' ? 'violet-text' : cls === 'chart-2' ? 'primary' : 'muted') + ')"/>';
+          }
+          svg += '<g class="cluster" tabindex="0" role="button" data-id="' + p.id + '" aria-label="' + S.esc(p.title + ', ' + (p.prob * 100).toFixed(1) + ' percent') + '">' +
+            '<circle class="cluster-ring" cx="' + cx + '" cy="' + cy + '" r="' + (radius + 6 * scale) + '"/>' +
+            '<g class="cluster-dots">' + dots + '</g>' +
+            '<circle cx="' + cx + '" cy="' + cy + '" r="' + (radius + 8 * scale) + '" fill="transparent"/>' +
+            '<text class="field-label" x="' + cx + '" y="' + (cy + radius + 17 * scale) + '" text-anchor="middle">' + String(p.rank).padStart(2, '0') + (p.rank <= 3 ? ' · ' + f.pct(p.prob, 1) : '') + '</text>' +
+            '</g>';
+        });
+        svg += '</svg>';
+        fieldHost.innerHTML = svg;
+        fieldHost.querySelectorAll('.cluster').forEach((g) => {
+          const p = proposals.find((x) => x.id === g.dataset.id);
+          const tip = '<div class="tt-date">' + S.esc(p.team) + '</div><div class="tt-title">' + S.esc(p.title) + '</div><div class="tt-row"><span>Probability</span><b>' + f.pct(p.prob) + '</b></div><div class="tt-row"><span>AI share</span><b>' + Math.round(p.aiShare * 100) + '%</b></div><div class="tt-row"><span>Volume</span><b>' + f.usd(p.volume) + '</b></div>';
+          const enter = (ev) => S.showTip(tip, ev.clientX, ev.clientY);
+          g.addEventListener('pointerenter', enter);
+          g.addEventListener('pointermove', enter);
+          g.addEventListener('pointerleave', S.hideTip);
+          g.addEventListener('focus', () => { const r = g.getBoundingClientRect(); S.showTip(tip, r.left + r.width / 2, r.top + 20); });
+          g.addEventListener('blur', S.hideTip);
+          g.addEventListener('click', () => selectProposal(p.id));
+          g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectProposal(p.id); } });
+        });
+        paintFieldState();
+        if (window.ResizeObserver && fieldHost.clientWidth > 0) {
+          let lastW = fieldHost.clientWidth;
+          const ro = new ResizeObserver(() => {
+            const nextW = fieldHost.clientWidth;
+            if (Math.abs(nextW - lastW) > 2) { lastW = nextW; buildField(); }
+          });
+          ro.observe(fieldHost);
+          fieldHost._seerFieldRO = ro;
+        }
+      }
+      function paintFieldState() {
+        const visible = proposals.filter((p) => matchesFlow(p) && matchesTag(p)).length;
+        const fc = document.getElementById('field-count');
+        if (fc) fc.textContent = visible + ' of ' + proposals.length + ' outcomes';
+        fieldHost.querySelectorAll('.cluster').forEach((g) => {
+          const p = proposals.find((x) => x.id === g.dataset.id);
+          g.classList.toggle('is-dim', !matchesFlow(p) || !matchesTag(p));
+          g.classList.toggle('is-selected', p.id === state.selected);
+          g.setAttribute('aria-pressed', String(p.id === state.selected));
+        });
+      }
+
+      /* Scatter */
+      function buildScatter() {
+        const host = document.getElementById('scatter');
+        if (host._seerScatterRO) { host._seerScatterRO.disconnect(); host._seerScatterRO = null; }
+        const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        const rs = rem / 16;
+        const scs = getComputedStyle(host);
+        const W = Math.max(320, Math.round((host.getBoundingClientRect().width || host.clientWidth || 640) - (parseFloat(scs.paddingLeft) || 0) - (parseFloat(scs.paddingRight) || 0)));
+        const H = Math.round(278 * rs);
+        const pad = { l: 48 * rs, r: 12 * rs, t: 12 * rs, b: 34 * rs };
+        const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+        const x = (v) => pad.l + (v / .8) * iw;
+        const y = (v) => pad.t + ih - (v / .085) * ih;
+        let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" data-chart="scatter" aria-label="Scatter plot of AI share of volume against implied probability" tabindex="0">';
+        for (let i = 0; i <= 4; i++) {
+          const yy = pad.t + (i / 4) * ih;
+          svg += '<line class="grid" x1="' + pad.l + '" x2="' + (W - pad.r) + '" y1="' + yy + '" y2="' + yy + '"/>';
+          svg += '<text x="' + (pad.l - 6 * rs) + '" y="' + (yy + 2.5 * rs) + '" text-anchor="end">' + (8.5 - i * 2.125).toFixed(1) + '%</text>';
+        }
+        [0.2, 0.4, 0.6, 0.8].forEach((v) => {
+          svg += '<line class="grid" x1="' + x(v) + '" x2="' + x(v) + '" y1="' + pad.t + '" y2="' + (H - pad.b) + '"/>';
+          svg += '<text x="' + x(v) + '" y="' + (H - pad.b + 12 * rs) + '" text-anchor="middle">' + Math.round(v * 100) + '%</text>';
+        });
+        svg += '<line class="axis" x1="' + pad.l + '" x2="' + pad.l + '" y1="' + pad.t + '" y2="' + (H - pad.b) + '"/>';
+        svg += '<line class="axis" x1="' + pad.l + '" x2="' + (W - pad.r) + '" y1="' + (H - pad.b) + '" y2="' + (H - pad.b) + '"/>';
+        svg += '<text class="axis-label" x="' + (pad.l + iw / 2) + '" y="' + (H - 6 * rs) + '" text-anchor="middle">AI share of volume</text>';
+        svg += '<text class="axis-label" x="' + (11 * rs) + '" y="' + (pad.t + ih / 2) + '" transform="rotate(-90 ' + (11 * rs) + ' ' + (pad.t + ih / 2) + ')" text-anchor="middle">Implied probability</text>';
+        proposals.forEach((p) => {
+          svg += '<circle class="pt" data-id="' + p.id + '" cx="' + x(p.aiShare) + '" cy="' + y(p.prob) + '" r="' + (p.prob > .045 ? 4.5 : 3) * rs + '" fill="var(--' + (p.prob > .045 ? 'violet-text' : 'chart-3') + ')" opacity="' + (p.prob > .045 ? '.95' : '.55') + '"/>';
+        });
+        svg += '</svg>';
+        host.innerHTML = '<div class="chart">' + svg + '</div>';
+        const svgEl = host.querySelector('svg');
+        svgEl.addEventListener('pointermove', (ev) => {
+          const r = svgEl.getBoundingClientRect();
+          const vx = ((ev.clientX - r.left) / r.width) * W;
+          const vy = ((ev.clientY - r.top) / r.height) * H;
+          let best = null, bd = 18 * rs;
+          proposals.forEach((p) => { const d = Math.hypot(x(p.aiShare) - vx, y(p.prob) - vy); if (d < bd) { bd = d; best = p; } });
+          if (best) S.showTip('<div class="tt-date">' + S.esc(best.team) + '</div><div class="tt-title">' + S.esc(best.title) + '</div><div class="tt-row"><span>AI share</span><b>' + Math.round(best.aiShare * 100) + '%</b></div><div class="tt-row"><span>Probability</span><b>' + f.pct(best.prob) + '</b></div>', ev.clientX, ev.clientY);
+          else S.hideTip();
+        });
+        svgEl.addEventListener('pointerleave', S.hideTip);
+        let focusIndex = -1;
+        svgEl.addEventListener('keydown', (ev) => {
+          if (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft' && ev.key !== 'Home' && ev.key !== 'End') return;
+          ev.preventDefault();
+          if (ev.key === 'Home') focusIndex = 0;
+          else if (ev.key === 'End') focusIndex = proposals.length - 1;
+          else focusIndex = S.clamp((focusIndex < 0 ? 0 : focusIndex) + (ev.key === 'ArrowRight' ? 1 : -1), 0, proposals.length - 1);
+          const p = proposals[focusIndex];
+          const r = svgEl.getBoundingClientRect();
+          S.showTip('<div class="tt-date">' + S.esc(p.team) + '</div><div class="tt-title">' + S.esc(p.title) + '</div><div class="tt-row"><span>AI share</span><b>' + Math.round(p.aiShare * 100) + '%</b></div><div class="tt-row"><span>Probability</span><b>' + f.pct(p.prob) + '</b></div>', r.left + (x(p.aiShare) / W) * r.width, r.top + (y(p.prob) / H) * r.height);
+        });
+        svgEl.addEventListener('blur', S.hideTip);
+        svgEl.addEventListener('click', (ev) => {
+          const r = svgEl.getBoundingClientRect();
+          const vx = ((ev.clientX - r.left) / r.width) * W, vy = ((ev.clientY - r.top) / r.height) * H;
+          let best = null, bd = 18 * rs;
+          proposals.forEach((p) => { const d = Math.hypot(x(p.aiShare) - vx, y(p.prob) - vy); if (d < bd) { bd = d; best = p; } });
+          if (best) selectProposal(best.id);
+        });
+        if (window.ResizeObserver && host.clientWidth > 0) {
+          let lastW = host.clientWidth;
+          const ro = new ResizeObserver(() => {
+            const nextW = host.clientWidth;
+            if (Math.abs(nextW - lastW) > 2) { lastW = nextW; buildScatter(); }
+          });
+          ro.observe(host);
+          host._seerScatterRO = ro;
+        }
+      }
+
+      /* Lanes */
+      function buildLanes() {
+        const ai = proposals.slice().sort((a, b) => b.aiVolume - a.aiVolume).slice(0, 5);
+        const human = proposals.slice().sort((a, b) => b.humanVolume - a.humanVolume).slice(0, 5);
+        const aiPct = Math.round(aiVolume / totalVol * 100);
+        const col = (rows, kind) => '<div class="lane-col ' + kind + '"><div class="lane-col-head"><span>' + (kind === 'ai' ? 'AI agents' : 'Humans') + '</span><b>' + (kind === 'ai' ? aiPct : 100 - aiPct) + '%</b></div>' + rows.map((p) => {
+          const agent = kind === 'human';
+          const who = agent ? 'Delegate · ' + p.team.split(' ')[0] : p.agent;
+          const track = agent ? 'human wallet · ' + p.traders + ' trades' : p.agentTrack;
+          return '<div class="lane-row"><span class="tag ' + (agent ? '' : 'tag-violet') + '">' + (agent ? 'HUMAN' : 'AI') + '</span><span class="who">' + S.esc(who) + '<span>' + S.esc(track) + '</span></span><span class="amt">' + f.usd(agent ? p.humanVolume : p.aiVolume) + '<span>' + f.pct(p.prob) + '</span></span></div>';
+        }).join('') + '</div>';
+        document.getElementById('lanes').innerHTML = col(ai, 'ai') + col(human, 'human');
+      }
+
+      /* Ranked list */
+      function paintRanked() {
+        const list = sorted(filtered());
+        document.getElementById('rank-count').textContent = list.length + ' proposals';
+        document.getElementById('ranked-note').textContent = 'Sorted by ' + ({ prob: 'probability', score: 'reviewer score', ai: 'AI volume', human: 'human volume' }[state.sort]);
+        const dirty = state.q || state.tag !== 'All';
+        document.getElementById('rank-reset').hidden = !dirty;
+        ranked.innerHTML = list.map((p) => {
+          const inQueue = state.queue.has(p.id);
+          return '<div class="proposal-row' + (p.id === state.selected ? ' is-selected' : '') + '" id="' + p.id + '" role="button" tabindex="0" data-id="' + p.id + '" aria-pressed="' + (p.id === state.selected) + '">' +
+            '<span class="rank">' + String(p.rank).padStart(2, '0') + '</span>' +
+            '<div><div class="p-title">' + S.esc(p.title) + '</div><div class="p-sub">' + S.esc(p.team) + ' · ' + S.esc(p.category) + ' · ' + f.usd(p.ask, 0) + '</div></div>' +
+            '<div class="p-prob"><b>' + f.pct(p.prob) + '</b><div class="prob"><span style="width:' + f.pct(p.prob) + '"></span></div></div>' +
+            '<div class="p-split"><span>AI <b>' + Math.round(p.aiShare * 100) + '%</b></span><span>HUM <b>' + Math.round((1 - p.aiShare) * 100) + '%</b></span></div>' +
+            '<div class="p-score">' + p.reviewScore.toFixed(1) + '<span>/ 5</span></div>' +
+            '<button class="add' + (inQueue ? ' in' : '') + '" type="button" data-add="' + p.id + '" aria-label="' + (inQueue ? 'Remove from' : 'Add to') + ' review queue">' + (inQueue ? S.icons.check : S.icons.plus) + '</button>' +
+            '</div>';
+        }).join('');
+        rankEmpty.hidden = list.length !== 0;
+        if (!list.length) {
+          rankEmpty.className = 'empty';
+          rankEmpty.style.margin = '14px';
+          rankEmpty.innerHTML = '<div class="empty-title">No proposals match those filters.</div><p>Try another tag or clear the search. The field contains 30 proposals.</p><button class="btn btn-sm mt-8" type="button" id="clear-rank">Clear filters</button>';
+          document.getElementById('clear-rank').addEventListener('click', clearRankFilters);
+        }
+        ranked.querySelectorAll('.proposal-row').forEach((row) => {
+          row.addEventListener('click', (ev) => {
+            if (ev.target.closest('[data-add]')) return;
+            selectProposal(row.dataset.id);
+          });
+          row.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectProposal(row.dataset.id); }
+          });
+        });
+        ranked.querySelectorAll('[data-add]').forEach((b) => b.addEventListener('click', (ev) => { ev.stopPropagation(); toggleQueue(b.dataset.add); }));
+        paintFieldState();
+      }
+      function clearRankFilters() {
+        state.q = ''; state.tag = 'All';
+        document.getElementById('rank-search').value = '';
+        document.querySelectorAll('#rank-tags .chip-tab').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tag === 'All')));
+        paintRanked();
+      }
+
+      function toggleQueue(id) {
+        if (state.queue.has(id)) state.queue.delete(id); else state.queue.add(id);
+        paintRanked();
+        paintQueue();
+        paintSelected();
+      }
+      function paintQueue() {
+        const count = document.getElementById('queue-count');
+        count.textContent = state.queue.size;
+        const body = document.getElementById('queue-body');
+        if (!state.queue.size) {
+          body.innerHTML = '<div class="queue-empty">No proposals added yet. Add a proposal from the ranked field to hold it for review.</div>';
+        } else {
+          body.innerHTML = '<div class="queue-list">' + Array.from(state.queue).map((id) => {
+            const p = proposals.find((x) => x.id === id);
+            return '<div class="queue-item"><span>' + S.esc(p.title) + '</span><button type="button" data-remove="' + id + '" aria-label="Remove ' + S.esc(p.title) + ' from queue">' + S.icons.close + '</button></div>';
+          }).join('') + '</div>';
+          body.querySelectorAll('[data-remove]').forEach((b) => b.addEventListener('click', () => toggleQueue(b.dataset.remove)));
+        }
+        const suggest = sorted(filtered()).slice().sort((a, b) => b.reviewScore - a.reviewScore).slice(0, 5);
+        document.getElementById('suggested').innerHTML = suggest.map((p) => '<div class="suggest-row" data-id="' + p.id + '"><span class="r">' + String(p.rank).padStart(2, '0') + '</span><span>' + S.esc(p.title) + '</span><b>' + p.reviewScore.toFixed(1) + '</b></div>').join('');
+        document.querySelectorAll('#suggested .suggest-row').forEach((r) => r.addEventListener('click', () => selectProposal(r.dataset.id)));
+      }
+
+      function paintSelected() {
+        const p = proposals.find((x) => x.id === state.selected) || proposals[0];
+        const inQueue = state.queue.has(p.id);
+        document.getElementById('selected-card').innerHTML =
+          '<div class="selected-head">' +
+          '<div class="selected-rank"><span class="tag tag-violet">Rank ' + String(p.rank).padStart(2, '0') + '</span><span class="micro">' + S.esc(p.category) + '</span></div>' +
+          '<h2 class="selected-title">' + S.esc(p.title) + '</h2>' +
+          '<div class="selected-team">' + S.esc(p.team) + ' · asks ' + f.usd(p.ask, 0) + '</div>' +
+          '<div class="selected-prob"><div class="big">' + f.pct(p.prob) + '</div><div class="chg"><b class="' + (p.change >= 0 ? 'trend-up' : 'trend-down') + '">' + f.pts(p.change) + '</b><span>30 days</span></div></div>' +
+          '</div>' +
+          '<div class="selected-metrics"><div><div class="k">AI share</div><div class="v">' + Math.round(p.aiShare * 100) + '% · ' + S.esc(p.agent) + '</div></div><div><div class="k">Human share</div><div class="v">' + Math.round((1 - p.aiShare) * 100) + '%</div></div><div><div class="k">Volume</div><div class="v">' + f.usd(p.volume) + '</div></div><div><div class="k">Traders</div><div class="v">' + f.num(p.traders) + '</div></div></div>' +
+          '<div class="review-note"><div class="micro">Reviewer signal · ' + p.reviewScore.toFixed(1) + ' / 5</div><p class="note">' + S.esc(p.note) + '</p></div>' +
+          '<div class="selected-actions"><button class="btn ' + (inQueue ? 'btn-secondary' : '') + '" type="button" id="toggle-selected">' + (inQueue ? 'Remove from queue' : 'Add to review queue') + '</button><a class="btn btn-ghost" href="../opportunity/index.html#s01">Compare</a></div>';
+        document.getElementById('toggle-selected').addEventListener('click', () => toggleQueue(p.id));
+        const outcomes = proposals.map((x) => ({ id: x.id, label: x.title, price: x.prob }));
+        S.tradeTicket(document.getElementById('aside-ticket'), {
+          title: 'Take a position',
+          subtitle: 'One market · 30 outcomes',
+          outcomes,
+          initialOutcome: p.id,
+          depth: 1240000,
+          initialAmount: 0,
+          quickScale: 100,
+          note: 'Buying an outcome raises its price and spreads the change across the field. Prices sum to 1.',
+          onChange: (st) => {
+            const el = document.getElementById('deep-trade-note');
+            if (el) el.textContent = st.amount > 0 ? 'Est. ' + f.num(st.shares, 0) + ' shares; field probability would move by about ' + (st.impactPct / 2).toFixed(2) + ' pts.' : '';
+          }
+        });
+        document.getElementById('aside-ticket').insertAdjacentHTML('beforeend', '<p class="trade-note" id="deep-trade-note" style="padding:0 .125rem"></p>');
+        paintFieldState();
+      }
+
+      function selectProposal(id) {
+        state.selected = id;
+        paintRanked();
+        paintSelected();
+        paintQueue();
+      }
+
+      /* Setup */
+      document.querySelectorAll('[data-flow]').forEach((b) => b.addEventListener('click', () => {
+        state.flow = b.dataset.flow;
+        document.querySelectorAll('[data-flow]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        buildLanes();
+        paintRanked();
+        paintQueue();
+      }));
+      document.getElementById('rank-tags').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-tag]');
+        if (!b) return;
+        state.tag = b.dataset.tag;
+        document.querySelectorAll('#rank-tags .chip-tab').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        paintRanked();
+        paintQueue();
+      });
+      document.getElementById('rank-search').addEventListener('input', (e) => { state.q = e.target.value; paintRanked(); paintQueue(); });
+      document.getElementById('rank-sort').addEventListener('change', (e) => { state.sort = e.target.value; paintRanked(); paintQueue(); });
+      document.getElementById('rank-reset').addEventListener('click', clearRankFilters);
+
+      // initial skeletons
+      fieldHost.innerHTML = '<div class="skeleton" style="height:26.875rem;border-radius:.875rem;margin:.5rem"></div>';
+      ranked.innerHTML = Array.from({ length: 7 }).map(() => '<div style="padding:.5625rem .8125rem;border-bottom:1px solid var(--line)"><div class="skeleton skeleton-line w60"></div><div class="skeleton skeleton-line w40 mt-8" style="height:.4375rem"></div></div>').join('');
+      setTimeout(() => {
+        buildField();
+        buildScatter();
+        buildLanes();
+        paintRanked();
+        paintQueue();
+        paintSelected();
+      }, 520);
+    })();
+  </script>
+</body>
+</html>

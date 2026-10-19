@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Seer Futarchy: conditional markets that forecast one success metric if a DAO proposal passes or is rejected.">
+  <meta name="theme-color" content="#101013">
+  <title>Seer Futarchy: One proposal, two futures</title>
+  <script>try{var t=localStorage.getItem('seer-theme');if(t==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="icon" href="../logo/favicon.png" type="image/png">
+  <link rel="stylesheet" href="../shared/shared.css?v=37">
+  <style>
+    .fut-head { padding-block: clamp(44px, 5.6vw, 72px) 30px; border-bottom: 1px solid var(--line); }
+    .fut-head-grid { display: grid; grid-template-columns:minmax(0, 1.18fr) minmax(20rem, .82fr); gap:clamp(2rem, 5vw, 4.5rem); align-items: end; }
+    .fut-head h1 { max-width:12ch; margin-top:1.25rem; }
+    .fut-head .lede { margin-top:1.25rem; max-width:52ch; }
+    .proposal-card { border: 1px solid var(--line-strong); border-radius:var(--r-lg); padding:1.125rem; background: var(--card); position: relative; overflow: hidden; }
+    .proposal-card::before { content: ""; position: absolute; left:0; top:0; bottom:0; width:.125rem; background: var(--primary); }
+    .proposal-card .top { display: flex; justify-content: space-between; align-items: center; gap:.625rem; }
+    .proposal-card h2 { margin-top:.75rem; font-size:1.1875rem; line-height:1.3; letter-spacing:-.025em; font-weight: 500; }
+    .proposal-card p { margin-top:.5rem; font-size:.7188rem; line-height:1.55; color: var(--text-2); }
+    .proposal-facts { display: flex; flex-wrap: wrap; gap:.375rem; margin-top:.8125rem; }
+    .proposal-facts span { font-family: var(--font-mono); font-size:.5rem; letter-spacing:.04em; padding:.25rem .375rem; background: var(--surface); border-radius:.25rem; color: var(--text-2); }
+    .proposal-card .link-arrow { margin-top:1rem; font-size:.625rem; }
+
+    .fut-meta { display: grid; grid-template-columns:repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+    .fut-meta div { padding:.9375rem 1.25rem .9375rem 0; border-right: 1px solid var(--line); }
+    .fut-meta div + div { padding-left:1.25rem; }
+    .fut-meta div:last-child { border-right: 0; }
+    .fut-meta .v { margin-top:.3125rem; font-size:.75rem; color: var(--text); }
+
+    .fut-main { padding-block: 28px 64px; }
+    .forecast { display: grid; grid-template-columns:minmax(0, 1.55fr) minmax(18.75rem, .55fr); gap:1.375rem; align-items: start; }
+    .chart-panel { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; }
+    .chart-panel .panel-head { display: flex; align-items: center; justify-content: space-between; gap:.75rem; padding:.8125rem .9375rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .chart-panel .panel-title { font-size:.8125rem; font-weight: 500; }
+    .chart-panel .controls { display: flex; gap:.5rem; align-items: center; flex-wrap: wrap; }
+    .chart-body { padding:.875rem 1rem .75rem; }
+    .chart-body .chart-head { display: flex; }
+    .chart-body .chart-caption { border-top: 1px solid var(--line); padding-top:.625rem; }
+    .final-badge { display: none; align-items: center; gap:.375rem; font-family: var(--font-mono); font-size:.5rem; letter-spacing:.06em; text-transform: uppercase; color: var(--violet-text); }
+    .chart-panel.is-closed .final-badge { display: inline-flex; }
+    .chart-panel.is-closed .chart-body { position: relative; }
+    .chart-panel.is-closed .chart-body::after { content: "FINAL SNAPSHOT · 27 OCT 2026"; position: absolute; top:1.25rem; right:1.125rem; font-family: var(--font-mono); font-size:.5rem; letter-spacing:.1em; color: var(--violet-text); border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--line)); background: var(--violet-soft); padding:.25rem .375rem; border-radius:.1875rem; }
+
+    .reading { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); padding:1.125rem; }
+    .reading .gap-big { font-size:3.625rem; line-height:.9; letter-spacing:-.06em; margin-top:1.125rem; color: var(--violet-text); font-variant-numeric: tabular-nums; }
+    .reading .gap-sub { margin-top:.4375rem; font-family: var(--font-mono); font-size:.5625rem; color: var(--muted); }
+    .reading .gap-copy { margin-top:1.125rem; font-size:.75rem; line-height:1.6; color: var(--text-2); }
+    .reading .gap-copy b { color: var(--text); font-weight: 500; }
+    .reading .branches { display: grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-top:1.125rem; }
+    .reading .branch-mini { padding:.5625rem; background: var(--surface); border-radius:.4375rem; }
+    .reading .branch-mini .k { font-family: var(--font-mono); font-size:.5rem; color: var(--muted); text-transform: uppercase; letter-spacing:.06em; }
+    .reading .branch-mini .v { margin-top:.25rem; font-family: var(--font-mono); font-size:.875rem; }
+    .reading .persistent { margin-top:1.125rem; padding-top:.8125rem; border-top: 1px solid var(--line); font-size:.6875rem; line-height:1.5; color: var(--violet-text); }
+    .reading .threshold { margin-top:.875rem; padding:.5625rem; border: 1px dashed var(--line-strong); border-radius:.4375rem; font-size:.5938rem; line-height:1.5; color: var(--muted); }
+
+    .branch-section { padding-top:2.125rem; }
+    .branch-grid { display: grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+    .branch-card { border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: visible; }
+    .branch-head { display: flex; justify-content: space-between; align-items: center; gap:.625rem; padding:.8125rem .9375rem; border-bottom: 1px solid var(--line); }
+    .branch-head h2 { font-size:1.125rem; letter-spacing:-.025em; margin-top:0; }
+    .branch-intro { padding:.875rem .9375rem 0; }
+    .branch-intro p { font-size:.6875rem; line-height:1.55; color: var(--text-2); margin-top:.375rem; }
+    .branch-price { display: flex; align-items: flex-end; justify-content: space-between; gap:.75rem; padding:.75rem .9375rem 0; }
+    .branch-price .p { font-size:2.5rem; line-height:.9; letter-spacing:-.06em; font-variant-numeric: tabular-nums; }
+    .branch-price .p small { font-size:.875rem; color: var(--muted); }
+    .branch-price .d { font-family: var(--font-mono); font-size:.5625rem; text-align: right; line-height:1.6; }
+    .branch-price .d b { display: block; font-weight: 500; font-size:.625rem; }
+    .branch-ticket { padding:.75rem .9375rem .9375rem; }
+    .branch-ticket .trade { border: 0; background: transparent; }
+    .branch-ticket .trade-head { padding:0 0 .625rem; }
+    .branch-ticket .trade-body { padding:.5rem 0 0; }
+    .branch-stats { display: grid; grid-template-columns:repeat(3, 1fr); border-top: 1px solid var(--line); }
+    .branch-stats div { padding:.5625rem .9375rem; border-right: 1px solid var(--line); }
+    .branch-stats div:last-child { border-right: 0; }
+    .branch-stats .k { font-family: var(--font-mono); font-size:.4375rem; letter-spacing:.07em; text-transform: uppercase; color: var(--muted); }
+    .branch-stats .v { margin-top:.1875rem; font-family: var(--font-mono); font-size:.5625rem; color: var(--text); }
+    .trade-closed { margin:0 .9375rem .9375rem; border: 1px dashed var(--line-strong); border-radius:.5rem; padding:1rem; text-align: center; color: var(--muted); font-size:.6875rem; line-height:1.5; }
+    .trade-closed b { display: block; color: var(--text); font-weight: 500; margin-bottom:.25rem; }
+
+    .positions { margin-top:1.25rem; border: 1px solid var(--line); border-radius:var(--r-card); background: var(--card); overflow: hidden; }
+    .positions-head { display: flex; justify-content: space-between; align-items: center; gap:.625rem; padding:.75rem .9375rem; border-bottom: 1px solid var(--line); }
+    .positions-body { padding:.5rem .9375rem .875rem; }
+    .position-row { display: grid; grid-template-columns:5rem minmax(0, 1fr) 6.25rem; gap:.75rem; align-items: center; padding:.5rem 0; border-bottom: 1px solid var(--line); font-size:.6562rem; }
+    .position-row:last-child { border-bottom: 0; }
+    .position-row b { font-family: var(--font-mono); font-size:.625rem; font-weight: 400; }
+    .position-empty { display: flex; align-items: center; gap:.75rem; padding:.5rem 0 .25rem; color: var(--muted); font-size:.6562rem; }
+    .position-empty .icon { color: var(--violet-text); }
+
+    .settle { display: grid; grid-template-columns:repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .settle div { padding:1.375rem; border-right: 1px solid var(--line); }
+    .settle div:last-child { border-right: 0; }
+    .settle .n { font-family: var(--font-mono); font-size:.5625rem; color: var(--violet-text); }
+    .settle h3 { margin-top:1.125rem; font-size:1.125rem; letter-spacing:-.02em; }
+    .settle p { margin-top:.4375rem; font-size:.75rem; line-height:1.55; color: var(--text-2); }
+
+    @media (max-width: 1180px) {
+      .forecast { grid-template-columns:1fr; }
+      .reading { display: grid; grid-template-columns:1fr 1fr; gap:0 1.5rem; }
+      .reading .gap-big { margin-top:.5rem; }
+      .reading .persistent { grid-column: 1 / -1; }
+    }
+    @media (max-width: 980px) {
+      .fut-head-grid { grid-template-columns:1fr; align-items: start; }
+      .fut-meta { grid-template-columns:1fr 1fr; }
+      .fut-meta div:nth-child(2) { border-right: 0; }
+      .fut-meta div:nth-child(n+3) { border-top: 1px solid var(--line); }
+      .branch-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width: 680px) {
+      .fut-head { padding-top:2.125rem; }
+      .reading { display: block; }
+      .fut-meta { grid-template-columns:1fr 1fr; }
+      .fut-meta div { padding:.75rem .75rem .75rem 0; }
+      .fut-meta div + div { padding-left:.75rem; }
+      .settle { grid-template-columns:1fr; }
+      .settle div { border-right: 0; border-bottom: 1px solid var(--line); padding:1.125rem; }
+      .settle div:last-child { border-bottom: 0; }
+      .branch-price .p { font-size:2.125rem; }
+      .position-row { grid-template-columns:4.375rem 1fr 4.625rem; }
+    }
+
+    @media (min-width: 1024px) {
+      body[data-page="futarchy"] .proposal-card p,
+      body[data-page="futarchy"] .proposal-facts span,
+      body[data-page="futarchy"] .fut-meta .v,
+      body[data-page="futarchy"] .chart-caption,
+      body[data-page="futarchy"] .reading .gap-copy,
+      body[data-page="futarchy"] .reading .threshold,
+      body[data-page="futarchy"] .reading .persistent,
+      body[data-page="futarchy"] .branch-intro p,
+      body[data-page="futarchy"] .branch-price .d,
+      body[data-page="futarchy"] .branch-stats .k,
+      body[data-page="futarchy"] .settle p,
+      body[data-page="futarchy"] .position-row,
+      body[data-page="futarchy"] .tag { font-size:.78rem; line-height:1.45; }
+      body[data-page="futarchy"] .reading .branch-mini .k,
+      body[data-page="futarchy"] .reading .gap-sub,
+      body[data-page="futarchy"] .branch-price .d,
+      body[data-page="futarchy"] .settle .n,
+      body[data-page="futarchy"] .position-empty span,
+      body[data-page="futarchy"] .link-arrow,
+      body[data-page="futarchy"] .status { font-size:.78rem; line-height:1.45; }
+      body[data-page="futarchy"] .branch-stats .v,
+      body[data-page="futarchy"] .position-row b { font-size:.8rem; }
+      body[data-page="futarchy"] .branch-price .d b { font-size:.8rem; }
+      body[data-page="futarchy"] .btn,
+      body[data-page="futarchy"] .btn-sm,
+      body[data-page="futarchy"] .select { font-size:.8rem; }
+    }
+  </style>
+</head>
+<body data-page="futarchy">
+  <div id="site-header"></div>
+  <main id="main">
+    <section class="fut-head">
+      <div class="wrap">
+        <div class="fut-head-grid">
+          <div>
+            <p class="eyebrow">Futarchy / Proposal AIP-42</p>
+            <h1 class="h1">One proposal.<br><span class="accent">Two futures.</span></h1>
+            <p class="lede">Conditional markets forecast one success metric twice: once if this proposal passes, once if it is rejected. The difference between those futures is the signal the DAO can read before it votes.</p>
+            <div class="row mt-24"><span class="tag tag-violet">Aurora Collective</span><span class="tag tag-chain">Ethereum</span><span class="tag">Conditional Token Framework</span></div>
+          </div>
+          <aside class="proposal-card" aria-label="Proposal summary">
+            <div class="top"><span class="micro">On the table</span><span class="status is-open"><span class="dot"></span>Open</span></div>
+            <h2>Fund Open Grants Round 7 with 2,000,000 USDC over 24 months</h2>
+            <p>A five-member council would run three open funding rounds a year, publish its scoring rubric, and reserve 20% for retroactive public-goods funding.</p>
+            <div class="proposal-facts"><span>2.0M USDC</span><span>24 months</span><span>5 members</span><span>20% retroactive</span></div>
+            <a class="link-arrow" href="#settle">How this settles <span aria-hidden="true">→</span></a>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="stat-strip" aria-label="Proposal market details">
+        <div class="stat"><div class="k"><span class="micro">Decision date</span></div><div class="v">28 October 2026</div></div>
+        <div class="stat"><div class="k"><span class="micro">Metric</span></div><div class="v">90-day treasury value</div></div>
+        <div class="stat"><div class="k"><span class="micro">Success threshold</span></div><div class="v">$42.0M at day 90</div></div>
+        <div class="stat"><div class="k"><span class="micro">Trading closes</span></div><div class="v" id="close-meta">27 October 2026 · 21:00 UTC</div></div>
+      </div>
+    </div>
+
+    <section class="fut-main">
+      <div class="wrap">
+        <div class="forecast">
+          <div class="chart-panel" id="chart-panel">
+            <div class="panel-head">
+              <div><div class="panel-title">Conditional forecast</div><div class="micro" id="chart-sub" style="margin-top:.1875rem">Treasury value · 90-day window</div></div>
+              <div class="controls">
+                <span class="final-badge"><span class="dot" style="width:.3125rem;height:.3125rem;border-radius:50%;background:var(--primary)"></span>Final reading</span>
+                <div class="segmented" id="metric-tabs" role="group" aria-label="Forecast metric">
+                  <button type="button" data-metric="treasury" aria-pressed="true">Treasury</button>
+                  <button type="button" data-metric="tvl" aria-pressed="false">TVL</button>
+                  <button type="button" data-metric="fees" aria-pressed="false">Fees</button>
+                </div>
+                <div class="segmented" id="state-tabs" role="group" aria-label="Trading state">
+                  <button type="button" data-state="open" aria-pressed="true">Trading open</button>
+                  <button type="button" data-state="closed" aria-pressed="false">Trading closed</button>
+                </div>
+              </div>
+            </div>
+            <div class="chart-body" id="forecast-chart">
+              <div class="skeleton" style="height:20rem;border-radius:.625rem"></div>
+            </div>
+          </div>
+
+          <aside class="reading" aria-live="polite">
+            <div class="micro">The gap / if passed minus if rejected</div>
+            <div class="gap-big" id="gap-big">+13.1%</div>
+            <div class="gap-sub" id="gap-sub">+$5.2M at day 90</div>
+            <p class="gap-copy" id="gap-copy">If passed, the market implies <b>$44.8M</b> in treasury value after 90 days. If rejected, it implies <b>$39.6M</b>. The gap is the market’s estimate of the proposal’s effect, not a verdict.</p>
+            <div class="branches">
+              <div class="branch-mini"><div class="k">If passed</div><div class="v" id="reading-pass">$44.8M</div></div>
+              <div class="branch-mini"><div class="k">If rejected</div><div class="v" id="reading-reject">$39.6M</div></div>
+            </div>
+            <div class="threshold">Branch threshold: the 90-day metric must exceed <b>$42.0M</b> for the conditional YES token to pay $1.</div>
+            <p class="persistent">The market informs the DAO. The DAO decides.</p>
+          </aside>
+        </div>
+
+        <section class="branch-section" id="branch" aria-labelledby="branch-title">
+          <div class="section-head">
+            <div class="index">01 / BRANCHES</div>
+            <div><p class="eyebrow" style="margin-bottom:.875rem">Trade the counterfactual</p><h2 class="h1" id="branch-title">Two branches, one metric.</h2></div>
+            <p class="head-note">Pass and reject are separate conditional tokens. Each has its own liquidity, price and payout. Trading one branch does not require trading the other.</p>
+          </div>
+          <div class="branch-grid">
+            <article class="branch-card" id="pass-card">
+              <div class="branch-head"><h2>If it passes</h2><span class="tag tag-violet">PASS</span></div>
+              <div class="branch-intro"><p>The proposal is implemented. This branch pays $1 if 90-day treasury value is above $42.0M.</p></div>
+              <div class="branch-price"><div class="p">62<small>¢</small></div><div class="d"><b class="trend-up">+4.1 pts</b><span>30 days</span></div></div>
+              <div class="branch-ticket" id="pass-ticket"></div>
+              <div class="branch-stats"><div><div class="k">Pool depth</div><div class="v">$1.24M</div></div><div><div class="k">24h volume</div><div class="v">$186K</div></div><div><div class="k">Traders</div><div class="v">842</div></div></div>
+            </article>
+            <article class="branch-card" id="fail-card">
+              <div class="branch-head"><h2>If it is rejected</h2><span class="tag">REJECT</span></div>
+              <div class="branch-intro"><p>The proposal is not implemented. This branch pays $1 if 90-day treasury value is above $42.0M.</p></div>
+              <div class="branch-price"><div class="p">38<small>¢</small></div><div class="d"><b class="trend-down">−2.6 pts</b><span>30 days</span></div></div>
+              <div class="branch-ticket" id="fail-ticket"></div>
+              <div class="branch-stats"><div><div class="k">Pool depth</div><div class="v">$860K</div></div><div><div class="k">24h volume</div><div class="v">$94K</div></div><div><div class="k">Traders</div><div class="v">611</div></div></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="positions" aria-labelledby="positions-title">
+          <div class="positions-head"><span class="micro" id="positions-title">Your positions</span><span class="micro" id="positions-count">0 open</span></div>
+          <div class="positions-body" id="positions-body"></div>
+        </section>
+
+        <div class="row mt-24" style="justify-content:space-between">
+          <p class="micro" style="max-width:64ch;line-height:1.6">Illustrative data. Prices, liquidity and forecasts are invented for this interface study. Futarchy is decision support: it does not execute the proposal or replace the DAO vote.</p>
+          <a class="link-arrow" href="../app/index.html">Open the market index <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-sm" id="settle">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="index">02 / SETTLEMENT</div>
+          <div><p class="eyebrow" style="margin-bottom:.875rem">What happens after the vote</p><h2 class="h1">A forecast with a source.</h2></div>
+          <p class="head-note">The market resolves against the named metric, on the named date. Disputes escalate rather than disappear into an internal committee.</p>
+        </div>
+        <div class="settle">
+          <div><div class="n">01 / OBSERVE</div><h3>Measure the metric.</h3><p>At day 90, the treasury value is read from the published treasury address set and recorded with a timestamp.</p></div>
+          <div><div class="n">02 / RESOLVE</div><h3>Propose the result.</h3><p>Reality.eth records the value. If challenged, Kleros arbitrates as a backstop. Both branches settle against the same observation.</p></div>
+          <div><div class="n">03 / REDEEM</div><h3>Pay the branches.</h3><p>Each conditional token pays $1 if its threshold is met under its branch. The DAO then votes on the proposal, with the signal on the record.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+    <section class="about-band" id="about" aria-labelledby="about-title">
+      <div class="wrap">
+        <div class="about-head">
+          <div><p class="eyebrow">About / Seer</p><h2 class="h2" id="about-title">Follow the protocol.</h2></div>
+          <p class="about-note">Seer is a prediction-market protocol on Ethereum and Gnosis Chain. Read the work, check the documentation, and find the community in the places below.</p>
+        </div>
+        <div class="about-links">
+          <a class="about-link" href="https://github.com/seer-pm" target="_blank" rel="noopener noreferrer"><span class="about-index">01 / Code</span><span class="about-name">GitHub <span aria-hidden="true">↗</span></span><span class="about-desc">Protocol repositories and open-source work.</span></a>
+          <a class="about-link" href="https://seer-3.gitbook.io/seer-documentation" target="_blank" rel="noopener noreferrer"><span class="about-index">02 / Read</span><span class="about-name">Documentation <span aria-hidden="true">↗</span></span><span class="about-desc">Markets, resolution, liquidity and the protocol.</span></a>
+          <a class="about-link" href="https://x.com/seer_pm?s=11" target="_blank" rel="noopener noreferrer"><span class="about-index">03 / Follow</span><span class="about-name">X <span aria-hidden="true">↗</span></span><span class="about-desc">Product notes and protocol updates.</span></a>
+          <a class="about-link" href="https://t.me/Seerpredictionmarket" target="_blank" rel="noopener noreferrer"><span class="about-index">04 / Chat</span><span class="about-name">Telegram <span aria-hidden="true">↗</span></span><span class="about-desc">Community chat and market discussion.</span></a>
+          <a class="about-link" href="https://discord.com/invite/AYqDkeZuvk" target="_blank" rel="noopener noreferrer"><span class="about-index">05 / Build</span><span class="about-name">Discord <span aria-hidden="true">↗</span></span><span class="about-desc">Builders, traders and reviewers.</span></a>
+        </div>
+      </div>
+    </section>
+
+  <div id="site-footer"></div>
+  <script src="../shared/shared.js?v=37"></script>
+  <script>
+    (function () {
+      const S = window.SEER, f = S.fmt;
+      const F = S.futarchy;
+      const state = { metric: 'treasury', closed: false, positions: [] };
+      const chartHost = document.getElementById('forecast-chart');
+      const passHost = document.getElementById('pass-ticket');
+      const failHost = document.getElementById('fail-ticket');
+      const positionsBody = document.getElementById('positions-body');
+
+      function conf() { return F.metrics[state.metric]; }
+      function ends() {
+        const c = conf();
+        const pass = c.pass[c.pass.length - 1], reject = c.reject[c.reject.length - 1];
+        return { pass, reject, gap: pass - reject, pct: ((pass - reject) / reject) * 100 };
+      }
+      function fmtVal(v) {
+        return '$' + Number(v).toFixed(1) + 'M';
+      }
+
+      function renderChart() {
+        const c = conf();
+        const e = ends();
+        document.getElementById('chart-sub').textContent = c.label + ' · 90-day window';
+        chartHost.innerHTML = '';
+        S.charts.line(chartHost, {
+          series: [
+            { name: 'If passed', values: c.pass, color: 'var(--chart-1)' },
+            { name: 'If rejected', values: c.reject, color: 'var(--chart-3)', dashed: true }
+          ],
+          labels: F.xLabels,
+          height: 330,
+          yMin: c.yMin,
+          yMax: c.yMax,
+          yTicks: 4,
+          xTicks: 6,
+          yFormat: (v) => '$' + Number(v).toFixed(0) + 'M',
+          label: `Conditional forecast: ${c.label} if passed versus rejected`,
+          band: { fill: 'var(--primary)', opacity: .11, label: 'Gap at day 90', format: (d) => (d >= 0 ? '+' : '−') + '$' + Math.abs(d).toFixed(1) + 'M' },
+          caption: `Illustrative forecast · ${c.label.toLowerCase()} · 13 readings across 90 days`,
+          unit: c.unit
+        });
+        document.getElementById('gap-big').textContent = (e.pct >= 0 ? '+' : '−') + Math.abs(e.pct).toFixed(1) + '%';
+        document.getElementById('gap-sub').textContent = (e.gap >= 0 ? '+' : '−') + fmtVal(Math.abs(e.gap)) + ' at day 90';
+        document.getElementById('gap-copy').innerHTML = 'If passed, the market implies <b>' + fmtVal(e.pass) + '</b> in ' + c.label.toLowerCase() + ' after 90 days. If rejected, it implies <b>' + fmtVal(e.reject) + '</b>. The gap is the market’s estimate of the proposal’s effect, not a verdict.';
+        document.getElementById('reading-pass').textContent = fmtVal(e.pass);
+        document.getElementById('reading-reject').textContent = fmtVal(e.reject);
+      }
+
+      function renderTicket(host, branch) {
+        if (state.closed) {
+          host.innerHTML = '<div class="trade-closed"><b>Trading closed</b>The final reading is fixed. Branch prices are shown for settlement reference only.</div>';
+          return;
+        }
+        const price = branch === 'pass' ? F.passPrice : F.failPrice;
+        S.tradeTicket(host, {
+          title: 'Trade this branch',
+          subtitle: 'Conditional YES · threshold $42.0M',
+          outcomes: [
+            { id: 'yes', label: 'YES', price },
+            { id: 'no', label: 'NO', price: 1 - price }
+          ],
+          depth: branch === 'pass' ? F.passLiquidity : F.failLiquidity,
+          initialAmount: 0,
+          quickScale: 100,
+          note: 'Conditional shares pay $1 if the branch threshold is met. This is an illustrative quote, not a fill.',
+          onConfirm: (st) => {
+            state.positions.push({ branch: branch === 'pass' ? 'PASS' : 'REJECT', side: st.side.toUpperCase(), amount: st.amount, shares: st.shares });
+            renderPositions();
+          }
+        });
+      }
+
+      function renderPositions() {
+        document.getElementById('positions-count').textContent = state.positions.length + ' open';
+        if (!state.positions.length) {
+          positionsBody.innerHTML = '<div class="position-empty">' + S.icons.shield + '<span>No position in either branch yet. A position is optional; the signal exists without one.</span></div>';
+          return;
+        }
+        positionsBody.innerHTML = state.positions.map((p) => '<div class="position-row"><span class="tag ' + (p.branch === 'PASS' ? 'tag-violet' : '') + '">' + p.branch + ' · ' + p.side + '</span><span>' + f.usd(p.amount, 0) + ' at ' + f.pct(p.amount / p.shares) + '</span><b>' + f.num(p.shares, 1) + ' shares</b></div>').join('');
+      }
+
+      function renderAll() {
+        renderChart();
+        renderTicket(passHost, 'pass');
+        renderTicket(failHost, 'fail');
+        renderPositions();
+        document.getElementById('chart-panel').classList.toggle('is-closed', state.closed);
+        document.getElementById('close-meta').textContent = state.closed ? 'Closed 27 October 2026 · 21:00 UTC' : '27 October 2026 · 21:00 UTC';
+        document.querySelectorAll('#state-tabs button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.state === 'closed') === state.closed)));
+        document.querySelectorAll('#metric-tabs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.metric === state.metric)));
+      }
+
+      document.getElementById('metric-tabs').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-metric]');
+        if (!b) return;
+        state.metric = b.dataset.metric;
+        renderAll();
+      });
+      document.getElementById('state-tabs').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-state]');
+        if (!b) return;
+        state.closed = b.dataset.state === 'closed';
+        renderAll();
+      });
+
+      setTimeout(renderAll, 520);
+    })();
+  </script>
+</body>
+</html>
