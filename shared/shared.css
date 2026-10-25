@@ -413,6 +413,7 @@ table { border-collapse: collapse; width:100%; }
   position: relative;
   z-index: 1;
   background: color-mix(in srgb, var(--bg) 86%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
   backdrop-filter: blur(16px) saturate(120%);
   border-bottom: 1px solid var(--line);
 }
@@ -1292,7 +1293,7 @@ body.view-trade .if-ask-only { display:none; }
 body.view-trade .if-trade-only { display:block; }
 
 /* Home: Information Finance */
-.home-hero { min-height:calc(100svh - 4.25rem); display:flex; flex-direction:column; justify-content:center; padding-block:clamp(2rem,5vw,4rem); }
+.home-hero { min-height:calc(100vh - 4.25rem); min-height:calc(100dvh - 4.25rem); display:flex; flex-direction:column; justify-content:center; padding-block:clamp(2rem,5vw,4rem); }
 .home-hero .hero-inner { align-items:center; }
 .hero-brief { border:1px solid rgba(169,138,245,.35); border-radius:var(--r-xl); background:rgba(18,15,32,.82); color:#ededf2; box-shadow:var(--shadow-2); overflow:hidden; max-width:35rem; }
 .hero-brief-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 1.125rem; border-bottom:1px solid rgba(237,237,242,.12); }
