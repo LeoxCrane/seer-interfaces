@@ -1,6 +1,6 @@
 # Seer's Six Interfaces: design study
 
-A six-page design study for the Seer prediction-market protocol, built on the Electric Foundation brand kit. The pages share one visual system and one set of fictional market data: Homepage, App, Deep, Futarchy, Opportunity and Risk.
+A six-page design study for Seer's Information Finance protocol, built on the Electric Foundation brand kit. The pages share one visual system and one set of fictional market data: Homepage, App, Deep, Futarchy, Opportunity and Risk.
 
 - [Homepage](home/)
 - [App](app/)

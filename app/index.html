@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Seer App: a precise index of every market across Ethereum and Gnosis Chain.">
+  <meta name="description" content="Seer App: the Information Finance explorer for every market, asker and resolution across Ethereum and Gnosis Chain.">
   <meta name="theme-color" content="#101013">
-  <title>Seer App: Every market, one precise index</title>
+  <title>Seer App: the Information Finance explorer</title>
   <script>try{var t=localStorage.getItem('seer-theme');if(t==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="icon" href="../logo/favicon.png" type="image/png">
   <link rel="stylesheet" href="../shared/shared.css?v=39">
@@ -235,12 +235,12 @@
         <div class="explorer-head-grid">
           <div>
             <p class="eyebrow">App / Market index</p>
-            <h1 class="h1">Every market,<br><span class="accent">one precise index.</span></h1>
-            <p class="lede">Seer's market index: categorical, scalar, multi-outcome and futarchy markets on Ethereum and Gnosis Chain, with the resolution source attached to every question.</p>
+            <h1 class="h1">Every market,<br><span class="accent">one explorer.</span></h1>
+            <p class="lede">Seer's Information Finance explorer: categorical, scalar, multi-outcome and futarchy markets on Ethereum and Gnosis Chain, with the resolution source attached to every question.</p>
           </div>
           <aside class="index-status" aria-label="Index status">
             <div class="top"><span class="micro">Index status</span><span class="status is-open"><span class="dot"></span>Example</span></div>
-            <div class="chain-row"><span>Ethereum</span><b>14 markets · $37.6M liq.</b></div>
+            <div class="chain-row"><span>Ethereum</span><b>15 markets · $37.6M liq.</b></div>
             <div class="chain-row"><span>Gnosis Chain</span><b>6 markets · $10.6M liq.</b></div>
             <div class="spark" id="index-spark" aria-hidden="true"></div>
                       </aside>
@@ -250,7 +250,7 @@
 
     <div class="wrap">
       <div class="app-stats" aria-label="Illustrative index statistics">
-        <div class="app-stat"><div class="k"><span class="micro">Open interest</span></div><div class="v">$18.4M</div><div class="s">across 20 markets</div></div>
+        <div class="app-stat"><div class="k"><span class="micro">Open interest</span></div><div class="v">$18.4M</div><div class="s">across 21 markets</div></div>
         <div class="app-stat"><div class="k"><span class="micro">24h volume</span></div><div class="v">$6.82M</div><div class="s">+9.8% vs prior day</div></div>
         <div class="app-stat"><div class="k"><span class="micro">Traders / 24h</span></div><div class="v">3,912</div><div class="s">1,106 on Gnosis</div></div>
         <div class="app-stat"><div class="k"><span class="micro">Median spread</span></div><div class="v">0.8%</div><div class="s">AMM quoted · Swapr</div></div>
@@ -307,9 +307,17 @@
           </div>
         </div>
         <div class="result-line">
-          <span class="count" id="result-count" aria-live="polite">20 markets</span>
+          <span class="count" id="result-count" aria-live="polite">21 markets</span>
           <button class="reset-btn" type="button" id="reset-filters" hidden>Reset filters</button>
           <span class="micro" style="margin-left:auto">Illustrative data · 17 Oct 2026</span>
+        </div>
+        <div class="explorer-tabs" role="tablist" aria-label="Explorer views">
+          <button type="button" role="tab" aria-selected="true" data-etab="markets">Markets</button>
+          <button type="button" role="tab" aria-selected="false" data-etab="askers">Askers</button>
+          <button type="button" role="tab" aria-selected="false" data-etab="agents">Traders and agents</button>
+          <button type="button" role="tab" aria-selected="false" data-etab="resolutions">Resolutions</button>
+          <button type="button" role="tab" aria-selected="false" data-etab="activity">Latest activity</button>
+          <button class="btn btn-sm" type="button" id="open-ask" style="margin-left:auto">Ask a question</button>
         </div>
       </div>
     </div>
@@ -318,6 +326,7 @@
       <div class="wrap">
         <div class="app-layout">
           <div class="app-list" id="app-list">
+            <div id="explorer-alt" class="explorer-view as-table" hidden></div>
             <div class="app-market-grid" id="market-grid" aria-live="polite"></div>
             <div class="market-table table-wrap" id="market-table">
               <table class="data">
@@ -336,14 +345,14 @@
       <div class="wrap">
         <div class="about-head">
           <div><p class="eyebrow">About / Seer</p><h2 class="h2" id="about-title">Follow the protocol.</h2></div>
-          <p class="about-note">Seer is a prediction-market protocol on Ethereum and Gnosis Chain. Read the work, check the documentation, and find the community in the places below.</p>
+          <p class="about-note">Seer is an Information Finance protocol on Ethereum and Gnosis Chain. Read the work, check the documentation, and find the community in the places below.</p>
         </div>
         <div class="about-links">
-          <a class="about-link" href="https://github.com/seer-pm" target="_blank" rel="noopener noreferrer"><span class="about-index">01 / Code</span><span class="about-name">GitHub <span aria-hidden="true">↗</span></span><span class="about-desc">Protocol repositories and open-source work.</span></a>
-          <a class="about-link" href="https://seer-3.gitbook.io/seer-documentation" target="_blank" rel="noopener noreferrer"><span class="about-index">02 / Read</span><span class="about-name">Documentation <span aria-hidden="true">↗</span></span><span class="about-desc">Markets, resolution, liquidity and the protocol.</span></a>
-          <a class="about-link" href="https://x.com/seer_pm?s=11" target="_blank" rel="noopener noreferrer"><span class="about-index">03 / Follow</span><span class="about-name">X <span aria-hidden="true">↗</span></span><span class="about-desc">Product notes and protocol updates.</span></a>
-          <a class="about-link" href="https://t.me/Seerpredictionmarket" target="_blank" rel="noopener noreferrer"><span class="about-index">04 / Chat</span><span class="about-name">Telegram <span aria-hidden="true">↗</span></span><span class="about-desc">Community chat and market discussion.</span></a>
-          <a class="about-link" href="https://discord.com/invite/AYqDkeZuvk" target="_blank" rel="noopener noreferrer"><span class="about-index">05 / Build</span><span class="about-name">Discord <span aria-hidden="true">↗</span></span><span class="about-desc">Builders, traders and reviewers.</span></a>
+          <a class="about-link" href="https://github.com/seer-pm" target="_blank" rel="noopener noreferrer"><span class="about-index">01 / Code</span><span class="about-name">Code <span aria-hidden="true">↗</span></span><span class="about-desc">Protocol repositories and open-source work.</span></a>
+          <a class="about-link" href="https://seer-3.gitbook.io/seer-documentation" target="_blank" rel="noopener noreferrer"><span class="about-index">02 / Read</span><span class="about-name">Docs <span aria-hidden="true">↗</span></span><span class="about-desc">Markets, resolution, liquidity and the protocol.</span></a>
+          <a class="about-link" href="https://x.com/seer_pm?s=11" target="_blank" rel="noopener noreferrer"><span class="about-index">03 / Follow</span><span class="about-name">Updates <span aria-hidden="true">↗</span></span><span class="about-desc">Product notes and protocol updates.</span></a>
+          <a class="about-link" href="https://t.me/Seerpredictionmarket" target="_blank" rel="noopener noreferrer"><span class="about-index">04 / Chat</span><span class="about-name">Chat <span aria-hidden="true">↗</span></span><span class="about-desc">Community chat and market discussion.</span></a>
+          <a class="about-link" href="https://discord.com/invite/AYqDkeZuvk" target="_blank" rel="noopener noreferrer"><span class="about-index">05 / Build</span><span class="about-name">Community <span aria-hidden="true">↗</span></span><span class="about-desc">Builders, traders and reviewers.</span></a>
         </div>
       </div>
     </section>
@@ -353,7 +362,7 @@
   <script>
     (function () {
       const S = window.SEER, f = S.fmt;
-      const state = { q: '', type: 'All', status: 'All', chain: 'All', category: 'All', sort: 'volume', view: 'grid', selected: 'eth-6k', range: '30d', chartScale: 'fit', detailTab: 'activity' };
+      const state = { q: '', type: 'All', status: 'All', chain: 'All', category: 'All', sort: 'volume', view: 'grid', selected: 'eth-6k', range: '30d', chartScale: 'fit', detailTab: 'overview', explorerTab: 'markets' };
       const grid = document.getElementById('market-grid');
       const tbody = document.getElementById('market-tbody');
       const detail = document.getElementById('detail');
@@ -367,6 +376,17 @@
       S.charts.sparkline(document.getElementById('index-spark'), [44, 46, 45, 49, 51, 48, 52, 55, 53, 57, 59, 61], { width: 280, height: 34 });
 
       const statusOrder = { open: 0, closing: 1, resolving: 2, resolved: 3 };
+      function appCfg(m) {
+        const asks = {
+          Policy: 'Aurora Collective policy working group', Crypto: 'Cedar treasury committee', Macro: 'Cedar treasury committee', DeFi: 'a protocol risk team', Governance: 'Aurora Collective council', Tech: 'Athena-7, an AI agent acting for Aurora', Politics: 'Aurora Collective policy working group', Sports: 'a market research team'
+        };
+        const iface = m.id === 'deep-r7' ? 'Deep' : m.type === 'Futarchy' ? 'Futarchy' : m.type === 'Multi-outcome' ? 'Opportunity' : m.id === 'tvl-winner' ? 'Risk' : 'Standard';
+        return { asker: asks[m.category] || 'Aurora Collective research desk', question: m.question, prices: 'The market-implied probability of ' + (m.type === 'Multi-outcome' ? 'the leading outcome' : 'Yes') + ', after AMM impact. It is a forecast, not a verdict.', use: 'Read the asker, the question and the resolution rule before you trade. Use the price as one input; the market does not decide for you.', why: 'A general explorer market: anyone can ask, anyone can trade, and the record keeps the asker, resolution source and price history together.', funded: 'Illustrative USDC subsidy · ' + S.esc(m.category), resolution: m.resolution, close: m.closes, response: m.type === 'Multi-outcome' ? 'Balanced · shared liquidity across outcomes' : 'Fast · a single binary pool', id: m.id, interface: iface, outcomes: m.outcomes.map(o => o.label).join(' / '), price: f.pct(m.leading.price) };
+      }
+      function ifaceLink(iface) {
+        const href = iface === 'Deep' ? '../deep/index.html' : iface === 'Futarchy' ? '../futarchy/index.html' : iface === 'Opportunity' ? '../opportunity/index.html' : iface === 'Risk' ? '../risk/index.html' : '../app/index.html';
+        return '<a class="interface-badge" href="' + href + '">' + iface + ' ↗</a>';
+      }
       function probText(m) {
         if (m.type === 'Multi-outcome' || m.type === 'Scalar') return f.pct(m.leading.price);
         return f.pct(m.outcomes[0].price);
@@ -388,6 +408,7 @@
           '<div class="market-question">' + S.esc(m.question) + '</div>' +
           thumb(m) + outcomes +
           '<div class="market-card-foot"><span>' + S.esc(m.type) + ' · ' + S.esc(m.chain) + '</span><span>' + f.shortDate(m.closes) + '</span></div>' +
+          '<div class="market-card-foot"><span>Asked by ' + S.esc(appCfg(m).asker) + '</span>' + ifaceLink(appCfg(m).interface) + '</div>' +
           '</button>';
       }
       function rowMarkup(m) {
@@ -492,17 +513,24 @@
         }
         const binary = m.type !== 'Multi-outcome' && m.type !== 'Scalar';
         detail.innerHTML =
+          '<div class="detail-breadcrumb">App / Markets / ' + S.esc(m.id) + '</div>' +
           '<div class="detail-head">' +
           '<div class="detail-top"><div class="row" style="gap:.375rem"><span class="tag tag-chain">' + S.esc(m.chain) + '</span><span class="tag">' + S.esc(m.type) + '</span>' + S.statusMarkup(m.status) + '</div><button class="detail-close" type="button" id="detail-close" aria-label="Close market detail">' + S.icons.close + '</button></div>' +
           '<h2 class="detail-q">' + S.esc(m.question) + '</h2>' +
           '<div class="detail-headline"><div class="big">' + probText(m) + '</div><div class="chg"><b class="' + (m.change >= 0 ? 'trend-up' : 'trend-down') + '">' + f.pts(m.change) + '</b><span>30 days</span></div></div>' +
+          '<div class="row" style="justify-content:space-between;margin-top:.6rem"><span class="micro">Asked by ' + S.esc(appCfg(m).asker) + '</span>' + ifaceLink(appCfg(m).interface) + '</div>' +
+          '<div class="at-switch" role="group" aria-label="Ask or trade view"><button type="button" data-at="ask">Ask</button><button type="button" data-at="trade">Trade</button></div>' +
           '</div>' +
+          '<div class="detail-brief">' + S.briefHTML(appCfg(m), true) + '</div>' +
           '<div class="detail-chart">' +
           '<div class="chart-head"><span class="micro">' + (binary ? 'Yes price' : 'Leading outcome · ' + S.esc(m.leading.label)) + '</span><div class="chart-controls"><div class="range-tabs" role="group" aria-label="Chart range"><button type="button" data-range="7d" aria-pressed="' + (state.range === '7d') + '">7D</button><button type="button" data-range="30d" aria-pressed="' + (state.range === '30d') + '">30D</button><button type="button" data-range="90d" aria-pressed="' + (state.range === '90d') + '">90D</button></div><div class="range-tabs" role="group" aria-label="Chart scale"><button type="button" data-scale="fit" aria-pressed="' + (state.chartScale === 'fit') + '">Fit</button><button type="button" data-scale="full" aria-pressed="' + (state.chartScale === 'full') + '">Full</button></div></div></div>' +
           '<div id="detail-chart-slot"><div class="skeleton" style="height:11.25rem;border-radius:0"></div></div>' +
           '</div>' +
           '<div class="detail-outcomes">' + m.outcomes.map((o) => '<div class="detail-outcome"><span class="l">' + S.esc(o.label) + '</span><div class="prob"><span style="width:' + f.pct(o.price) + '"></span></div><span class="p">' + f.pct(o.price) + '</span></div>').join('') + '</div>' +
+          '<div class="detail-split"><div><span class="micro">Traded by agents</span><b>' + f.num(Math.round(m.traders * .38)) + '</b></div><div><span class="micro">Traded by humans</span><b>' + f.num(Math.round(m.traders * .62)) + '</b></div></div>' +
+          '<div class="detail-notable"><b>Notable move.</b> A 4,000 USDC buy moved the leading price, then counter-trades returned it within 18 minutes. Illustrative.</div>' +
           '<div class="detail-ticket" id="detail-ticket"></div>' +
+          '<div class="if-trade-only" id="detail-agent-desk"></div>' +
           '<div class="detail-meta">' +
           '<div><div class="k">Volume</div><div class="v">' + f.usd(m.volume) + '</div></div>' +
           '<div><div class="k">Traders</div><div class="v">' + f.num(m.traders) + '</div></div>' +
@@ -510,7 +538,7 @@
           '<div><div class="k">Closes</div><div class="v">' + f.date(m.closes) + '</div></div>' +
           '</div>' +
           '<div class="detail-tabs" role="tablist" aria-label="Market detail sections">' +
-          ['activity', 'liquidity', 'rules'].map((t) => '<button type="button" role="tab" id="dtab-' + t + '" aria-selected="' + (state.detailTab === t) + '" data-dtab="' + t + '">' + (t === 'activity' ? 'Recent trades' : t === 'liquidity' ? 'Liquidity' : 'Rules') + '</button>').join('') +
+          ['overview', 'activity', 'holders', 'resolution', 'related'].map((t) => '<button type="button" role="tab" id="dtab-' + t + '" aria-selected="' + (state.detailTab === t) + '" data-dtab="' + t + '">' + (t === 'overview' ? 'Overview' : t === 'activity' ? 'Activity' : t === 'holders' ? 'Holders' : t === 'resolution' ? 'Resolution' : 'Related') + '</button>').join('') +
           '</div>' +
           '<div class="detail-panel" id="detail-panel"></div>';
 
@@ -566,6 +594,8 @@
         const ticket = document.getElementById('detail-ticket');
         ticket.insertAdjacentHTML('beforeend', '<p class="trade-note" id="trade-effect">Enter an amount to see the effect on price and payout.</p>');
 
+        const desk = document.getElementById('detail-agent-desk');
+        if (desk) S.agentDesk(desk, { outcomes: tradeOutcomes, depth: m.liquidity, price: tradeOutcomes[0].price });
         renderDetailPanel(m);
         bindDetail();
       }
@@ -573,16 +603,24 @@
       function renderDetailPanel(m) {
         const panel = document.getElementById('detail-panel');
         if (!panel) return;
-        if (state.detailTab === 'activity') {
+        if (state.detailTab === 'overview') {
+          panel.innerHTML = '<div class="liq-grid"><div class="liq-box"><div class="k">Who is asking</div><div class="v" style="font-size:.9rem">' + S.esc(appCfg(m).asker) + '</div></div><div class="liq-box"><div class="k">What is priced</div><div class="v" style="font-size:.9rem">' + S.esc(appCfg(m).prices) + '</div></div><div class="liq-box"><div class="k">Use the signal</div><div class="v" style="font-size:.9rem">Comparisons and review priority, not a decision.</div></div><div class="liq-box"><div class="k">Why this design</div><div class="v" style="font-size:.9rem">One asker, one public rule, one visible price history.</div></div></div>';
+        } else if (state.detailTab === 'activity') {
           panel.innerHTML = '<div class="trade-list" id="trade-list">' + recentTrades(m).map((t) => '<div class="trade-row-item"><span class="side ' + (t.side === 'No' ? 'no' : 'yes') + '">' + S.esc(t.side.slice(0, 3).toUpperCase()) + '</span><span class="who">' + S.esc(t.who) + '<span>' + t.time + '</span></span><span class="amt">' + f.usd(t.amount, 0) + '<span>' + f.pct(t.price) + '</span></span></div>').join('') + '</div><p class="liq-note mt-12">Trades are illustrative. Prices are AMM quotes, not bids or asks.</p>';
-        } else if (state.detailTab === 'liquidity') {
-          panel.innerHTML = '<div class="liq-grid"><div class="liq-box"><div class="k">Pool depth</div><div class="v">' + f.usd(m.liquidity) + '</div></div><div class="liq-box"><div class="k">24h fees</div><div class="v">' + f.usd(Math.round(m.volume * .0028), 0) + '</div></div><div class="liq-box"><div class="k">Impact · $1k</div><div class="v">' + ((1000 / (m.liquidity + 1000)) * 100).toFixed(2) + '%</div></div><div class="liq-box"><div class="k">Impact · $10k</div><div class="v">' + ((10000 / (m.liquidity + 10000)) * 100).toFixed(2) + '%</div></div></div><p class="liq-note">Liquidity providers earn trading fees plus incentives. Quotes come from a constant-product pool; larger orders move the price before they fill.</p>';
-        } else {
+        } else if (state.detailTab === 'holders') {
+          panel.innerHTML = '<div class="liq-grid"><div class="liq-box"><div class="k">Agent positions</div><div class="v">' + f.num(Math.round(m.traders * .38)) + '</div></div><div class="liq-box"><div class="k">Human positions</div><div class="v">' + f.num(Math.round(m.traders * .62)) + '</div></div><div class="liq-box"><div class="k">Top holder</div><div class="v">2.8%</div></div><div class="liq-box"><div class="k">Median position</div><div class="v">$420</div></div></div><p class="liq-note">Holders are illustrative. Agents and humans are labelled separately.</p>';
+        } else if (state.detailTab === 'resolution') {
           panel.innerHTML = '<ul class="rules-list"><li><b>Resolution source</b>Reality.eth proposal against the named public source, with Kleros as backstop arbitration.</li><li><b>Market rules</b>' + S.esc(m.rules) + '</li><li><b>Close</b>' + f.date(m.closes) + ' · 21:00 UTC</li><li><b>Market ID</b><span class="mono">' + S.esc(m.id) + ' · ' + S.esc(m.chain.toLowerCase().replace(/ /g, '-')) + '</span></li></ul>';
+        } else {
+          panel.innerHTML = '<ul class="rules-list">' + S.markets.filter((x) => x.id !== m.id).slice(0, 5).map((x) => '<li><b><a class="link-arrow" href="#' + x.id + '">' + S.esc(x.question) + '</a></b>' + S.esc(appCfg(x).interface) + ' · ' + f.pct(x.leading.price) + '</li>').join('') + '</ul>';
         }
       }
 
       function bindDetail() {
+        detail.querySelectorAll('[data-at]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.at === S.currentView())));
+        detail.querySelectorAll('[data-at]').forEach((b) => b.addEventListener('click', () => { S.setView(b.dataset.at); renderDetail(); }));
+        const copy = detail.querySelector('.copy-agent');
+        if (copy) copy.addEventListener('click', async () => { try { await navigator.clipboard.writeText(detail.querySelector('.for-agents pre').textContent); S.toast('Copied', 'Machine-readable summary copied.'); } catch (e) { S.toast('Copy failed', 'Select the JSON and copy it.'); } });
         const close = document.getElementById('detail-close');
         if (close) close.addEventListener('click', () => { state.selected = null; renderDetail(); renderList(); });
         detail.querySelectorAll('[data-range]').forEach((b) => b.addEventListener('click', () => {
@@ -608,7 +646,104 @@
         }
       }
 
+
+      function renderExplorerTab() {
+        const alt = document.getElementById('explorer-alt');
+        const gridEl = document.getElementById('market-grid');
+        const tableEl = document.getElementById('market-table');
+        const isMarkets = state.explorerTab === 'markets';
+        document.querySelectorAll('[data-etab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.etab === state.explorerTab)));
+        alt.hidden = isMarkets;
+        gridEl.hidden = !isMarkets;
+        tableEl.hidden = !isMarkets || state.view !== 'table';
+        if (isMarkets) { renderList(); return; }
+        const agentRows = [['Athena-7','Micro-market specialist','31','18%','64% hit rate'],['Quill','Grant-score forecaster','27','14%','61% hit rate'],['Meridian','Macro and policy','19','9%','58% hit rate'],['Sable','Risk comparison','16','7%','57% hit rate'],['Northstar','Resolution watcher','12','5%','63% hit rate']];
+        if (state.explorerTab === 'askers') {
+          const map = new Map();
+          S.markets.forEach((m) => { const a = appCfg(m).asker; map.set(a, (map.get(a) || 0) + 1); });
+          alt.innerHTML = '<table class="explorer-table"><thead><tr><th>Asker</th><th>Role</th><th class="num">Markets</th><th>Decision it feeds</th></tr></thead><tbody>' + [...map].map(([a, n]) => '<tr><td>' + S.esc(a) + '</td><td>Information seeker</td><td class="num">' + n + '</td><td>Illustrative decision support</td></tr>').join('') + '</tbody></table>';
+        } else if (state.explorerTab === 'agents') {
+          alt.innerHTML = '<div class="agent-cards">' + agentRows.map((r) => '<div class="agent-card"><span class="micro">Illustrative agent</span><h3>' + r[0] + '</h3><p>' + r[1] + '</p><div class="micro">' + r[2] + ' markets · ' + r[3] + ' of volume · ' + r[4] + '</div></div>').join('') + '</div>' + '<table class="explorer-table"><thead><tr><th>Agent</th><th>Strategy</th><th class="num">Markets</th><th class="num">Share of volume</th><th>Track record</th></tr></thead><tbody>' + agentRows.map((r) => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td class="num">' + r[2] + '</td><td class="num">' + r[3] + '</td><td>' + r[4] + ' · illustrative</td></tr>').join('') + '</tbody></table><p class="liq-note">No permission needed: any forecaster can trade, and it earns only if it is accurate.</p>';
+        } else if (state.explorerTab === 'resolutions') {
+          alt.innerHTML = '<table class="explorer-table"><thead><tr><th>Market</th><th>Resolution source</th><th>Closes</th><th>Status</th></tr></thead><tbody>' + S.markets.slice(0, 10).map((m) => '<tr tabindex="0" data-id="' + m.id + '"><td>' + S.esc(m.question) + '</td><td>Reality.eth · Kleros</td><td>' + f.date(m.closes) + '</td><td>' + S.statusMarkup(m.status) + '</td></tr>').join('') + '</tbody></table>';
+        } else {
+          alt.innerHTML = '<table class="explorer-table"><thead><tr><th>Time</th><th>Who</th><th>Action</th><th>Market</th></tr></thead><tbody>' +
+            [['2m','Athena-7','Asked a micro-market','Will the Aurora council publish its rubric this week?'],['7m','0x41f2…8c90','Bought Yes','Will ETH close above $6,000 on 31 December 2026?'],['11m','Quill','Updated a forecast','Open Grants Round 7 proposal 01'],['18m','vault.eth','Sold No','Will the Meridian Reserve cut rates at the November 2026 meeting?'],['24m','Meridian','Asked a micro-market','Will the Round 7 review finish before 30 October?']].map((r) => '<tr><td class="mono">' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>').join('') + '</tbody></table><p class="liq-note">Illustrative activity. Agents and humans are labelled separately.</p>';
+        }
+      }
+
+      function buildSearchMenu() {
+        const field = document.getElementById('market-search').closest('.search-field');
+        const wrap = document.createElement('div'); wrap.className = 'search-wrap';
+        field.parentNode.insertBefore(wrap, field); wrap.appendChild(field);
+        const menu = document.createElement('div'); menu.className = 'search-menu'; menu.id = 'search-menu'; menu.hidden = true; wrap.appendChild(menu);
+        const render = () => {
+          const q = document.getElementById('market-search').value.trim().toLowerCase();
+          if (!q) { menu.hidden = true; return; }
+          const ms = S.markets.filter((m) => (m.question + ' ' + m.id + ' ' + appCfg(m).asker).toLowerCase().includes(q)).slice(0, 4);
+          const as = [...new Set(S.markets.map((m) => appCfg(m).asker))].filter((a) => a.toLowerCase().includes(q)).slice(0, 3);
+          const ag = ['Athena-7','Quill','Meridian','Sable','Northstar'].filter((a) => a.toLowerCase().includes(q)).slice(0, 3);
+          let html = '';
+          if (ms.length) html += '<div class="search-group">Markets</div>' + ms.map((m) => '<button class="search-item" type="button" data-sid="' + m.id + '">' + S.esc(m.question) + '<span>' + S.esc(appCfg(m).interface) + '</span></button>').join('');
+          if (as.length) html += '<div class="search-group">Askers</div>' + as.map((a) => '<button class="search-item" type="button" data-asker="' + S.esc(a) + '">' + S.esc(a) + '<span>Asker</span></button>').join('');
+          if (ag.length) html += '<div class="search-group">Agents</div>' + ag.map((a) => '<button class="search-item" type="button" data-agent="' + a + '">' + a + '<span>Agent</span></button>').join('');
+          if (/^0x[a-f0-9]/i.test(q)) html += '<div class="search-group">Addresses</div><button class="search-item" type="button" data-address="0x41f2c7a18c90">0x41f2c7a18c90<span>Ethereum · illustrative</span></button>';
+          html += '<div class="search-group">Resolutions</div><button class="search-item" type="button" data-resolution="Reality.eth">Reality.eth · Kleros backstop<span>Resolution</span></button>';
+          menu.innerHTML = html || '<div class="search-group">No matches</div>';
+          menu.hidden = false;
+        };
+        document.getElementById('market-search').addEventListener('input', render);
+        document.getElementById('market-search').addEventListener('focus', render);
+        menu.addEventListener('click', (e) => {
+          const b = e.target.closest('button'); if (!b) return;
+          if (b.dataset.sid) { selectMarket(b.dataset.sid); }
+          else if (b.dataset.asker) { state.q = b.dataset.asker; document.getElementById('market-search').value = state.q; renderList(); }
+          else if (b.dataset.agent) { S.toast('Agent profile', b.dataset.agent + ' is an illustrative forecaster. Open Traders and agents for the profile.'); }
+          else if (b.dataset.resolution) { state.q = 'Reality.eth'; document.getElementById('market-search').value = state.q; renderList(); }
+          else if (b.dataset.address) { S.toast('Address', b.dataset.address + ' is an illustrative trader address. No wallet is connected.'); }
+          menu.hidden = true;
+        });
+        document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) menu.hidden = true; });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') menu.hidden = true; });
+      }
+
+      function buildAskDrawer() {
+        const drawer = document.createElement('div');
+        drawer.className = 'ask-drawer'; drawer.id = 'ask-drawer'; drawer.setAttribute('aria-label', 'Ask a question preview');
+        const backdrop = document.createElement('div'); backdrop.className = 'ask-backdrop'; backdrop.id = 'ask-backdrop';
+        drawer.innerHTML = '<div class="ask-drawer-head"><div><span class="micro">Ask a question · preview only</span><h2 class="h3" style="margin:.2rem 0 0">What do you need to know?</h2></div><button class="btn-icon" type="button" id="ask-close" aria-label="Close">×</button></div><div class="ask-drawer-body">' +
+          '<div class="ask-step"><div class="micro">01 / Need</div><div class="ask-choice">' + ['Rank a large field','Choose between two actions','Shortlist submissions','Compare risk','Find a market'].map((x) => '<button type="button" data-need="' + x + '">' + x + '</button>').join('') + '</div></div>' +
+          '<div class="ask-step"><div class="micro">02 / Question and outcomes</div><textarea id="ask-q" placeholder="What fact would change your decision?"></textarea><input id="ask-outcomes" placeholder="Outcomes, separated by commas" style="margin-top:.4rem"></div>' +
+          '<div class="ask-step"><div class="micro">03 / Funding and responsiveness</div><select id="ask-fund"><option>5,000 USDC · Fast</option><option>25,000 USDC · Balanced</option><option>100,000 USDC · Steady</option></select><p class="micro" style="margin:.45rem 0 0" id="ask-suggest">Suggestion, illustrative: choose the market type after wording the question.</p></div>' +
+          '<div class="ask-step"><div class="micro">04 / Signal Brief preview</div><div class="ask-preview" id="ask-preview">Your preview appears here.</div></div>' +
+          '<button class="btn" type="button" disabled aria-disabled="true">Submit is disabled in this preview</button></div>';
+        document.body.appendChild(backdrop); document.body.appendChild(drawer);
+        const open = () => { drawer.classList.add('is-open'); backdrop.classList.add('is-open'); document.getElementById('ask-q').focus(); };
+        const close = () => { drawer.classList.remove('is-open'); backdrop.classList.remove('is-open'); };
+        document.getElementById('open-ask').addEventListener('click', open);
+        document.getElementById('ask-close').addEventListener('click', close);
+        backdrop.addEventListener('click', close);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+        drawer.querySelectorAll('[data-need]').forEach((b) => b.addEventListener('click', () => { drawer.querySelectorAll('[data-need]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); update(); }));
+        ['ask-q','ask-outcomes','ask-fund'].forEach((id) => document.getElementById(id).addEventListener('input', update));
+        function update() {
+          const q = document.getElementById('ask-q').value.trim() || '[your question]';
+          const outs = document.getElementById('ask-outcomes').value.trim() || 'Yes / No';
+          const fund = document.getElementById('ask-fund').value;
+          const need = drawer.querySelector('[data-need][aria-pressed="true"]')?.dataset.need || 'a decision';
+          const type = /grant|proposal|shortlist|review/i.test(q) ? 'Opportunity' : /risk|depeg|exploit/i.test(q) ? 'Risk' : /pass|reject|treasury|metric/i.test(q) ? 'Futarchy' : 'Deep or Standard';
+          document.getElementById('ask-suggest').textContent = 'Suggestion, illustrative: ' + type + ' market for ' + need + '. Funding ' + fund + '.';
+          document.getElementById('ask-preview').innerHTML = '<b>Asked by</b> You · illustrative<br><b>Question</b> ' + S.esc(q) + '<br><b>Outcomes</b> ' + S.esc(outs) + '<br><b>Funding</b> ' + S.esc(fund) + '<br><b>Resolution</b> Reality.eth · Kleros backstop';
+        }
+      }
+
       function setup() {
+        buildSearchMenu();
+        buildAskDrawer();
+        document.querySelectorAll('[data-etab]').forEach((b) => b.addEventListener('click', () => { state.explorerTab = b.dataset.etab; renderExplorerTab(); }));
+        const altHost = document.getElementById('explorer-alt');
+        altHost.addEventListener('click', (e) => { const tr = e.target.closest('tr[data-id]'); if (tr) selectMarket(tr.dataset.id); });
+        altHost.addEventListener('keydown', (e) => { if (e.key !== 'Enter' && e.key !== ' ') return; const tr = e.target.closest('tr[data-id]'); if (!tr) return; e.preventDefault(); selectMarket(tr.dataset.id); });
         document.getElementById('market-search').addEventListener('input', (e) => { state.q = e.target.value; renderList(); });
         document.getElementById('type-tabs').addEventListener('click', (e) => {
           const b = e.target.closest('[data-type]');
@@ -628,9 +763,17 @@
         }));
         document.getElementById('reset-filters').addEventListener('click', clearFilters);
         renderList();
+        renderExplorerTab();
         renderDetail();
-        if (new URLSearchParams(location.search).get('focus') === 'search') {
+        const params = new URLSearchParams(location.search);
+        if (params.get('focus') === 'search') {
           setTimeout(() => document.getElementById('market-search').focus(), 300);
+        }
+        if (params.get('ask') === '1') {
+          setTimeout(() => document.getElementById('open-ask').click(), 300);
+        }
+        if (location.hash === '#agents') {
+          state.explorerTab = 'agents'; renderExplorerTab();
         }
       }
 

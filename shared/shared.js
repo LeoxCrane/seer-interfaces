@@ -176,7 +176,8 @@
     m({ id: 'fmb-chair', question: 'Who will chair the Federal Markets Board before 2027?', type: 'Multi-outcome', category: 'Politics', chain: 'Ethereum', volume: 2120000, traders: 1702, closes: '2026-12-31', change: -1.4, history: makeHistory(.31, 37), outcomes: [{ label: 'Candidate A', price: .31 }, { label: 'Candidate B', price: .24 }, { label: 'Candidate C', price: .19 }, { label: 'Candidate D', price: .16 }, { label: 'Other', price: .10 }], liquidity: 620000 }),
     m({ id: 'arb-budget', question: 'Will the Aurelia DAO pass its 2027 grants budget?', type: 'Futarchy', category: 'Governance', chain: 'Ethereum', price: .72, volume: 530000, traders: 401, closes: '2026-10-16', status: 'resolving', change: 5.2, history: makeHistory(.72, 39), liquidity: 190000 }),
     m({ id: 'eth-4k-sep', question: 'Did ORB close above $4.00 on 30 September 2026?', type: 'Categorical', category: 'Crypto', chain: 'Ethereum', price: 1, volume: 8400000, traders: 6120, closes: '2026-09-30', status: 'resolved', change: 0, history: makeHistory(.99, 41, 30, .01), outcomes: [{ label: 'Yes', price: 1 }, { label: 'No', price: 0 }], liquidity: 0 }),
-    m({ id: 'shutdown-oct', question: 'Did the Aster government avoid a shutdown on 1 October 2026?', type: 'Categorical', category: 'Politics', chain: 'Ethereum', price: 0, volume: 3100000, traders: 2200, closes: '2026-10-01', status: 'resolved', change: 0, history: makeHistory(.01, 43, 30, .01), outcomes: [{ label: 'Yes', price: 0 }, { label: 'No', price: 1 }], liquidity: 0 })
+    m({ id: 'shutdown-oct', question: 'Did the Aster government avoid a shutdown on 1 October 2026?', type: 'Categorical', category: 'Politics', chain: 'Ethereum', price: 0, volume: 3100000, traders: 2200, closes: '2026-10-01', status: 'resolved', change: 0, history: makeHistory(.01, 43, 30, .01), outcomes: [{ label: 'Yes', price: 0 }, { label: 'No', price: 1 }], liquidity: 0 }),
+    m({ id: 'deep-r7', question: 'Which six Round 7 proposals will human evaluators score highest?', type: 'Multi-outcome', category: 'Governance', chain: 'Ethereum', volume: 890000, traders: 640, closes: '2026-10-30', change: 3.2, history: makeHistory(.58, 45), outcomes: [{ label: 'Open-source MEV accounting', price: .30 }, { label: 'Public-goods endowment', price: .24 }, { label: 'Zero-knowledge procurement', price: .20 }, { label: 'Weather station network', price: .14 }, { label: 'Other', price: .12 }], liquidity: 340000 })
   ];
 
   markets.forEach((mk) => {
@@ -212,7 +213,7 @@
     ['Open-source tooling for DAO treasury reporting', 'Ledger Commons', 'Governance', 145],
     ['A fellowship for rural broadband cooperatives', 'Last Mile', 'Public goods', 165],
     ['Reproducible builds for smart-contract verification', 'Build Proof', 'Security', 195],
-    ['A public dataset of prediction-market calibration', 'Calibration Lab', 'Research', 110],
+    ['A public dataset of market calibration', 'Calibration Lab', 'Research', 110],
     ['Accessible wallets for blind and low-vision users', 'A11y Wallet', 'Public goods', 155],
     ['A legal defence fund for open-source developers', 'Defense Pool', 'Security', 330],
     ['Community solar forecasting with local sensors', 'Sunwise', 'Climate', 125],
@@ -455,7 +456,7 @@
       footer.innerHTML = '<footer class="footer"><div class="wrap">' +
         '<div class="footer-main">' +
         '<div class="footer-brand"><a class="brand" href="../home/index.html" aria-label="Seer home">' + brandMarkup() + '</a>' +
-        '<p>The base layer for decision markets. Markets on Ethereum and Gnosis Chain, resolved through Reality.eth with Kleros as backstop.</p>' +
+        '<p>Information Finance for decisions. Markets on Ethereum and Gnosis Chain, resolved through Reality.eth with Kleros as backstop.</p>' +
         '<p class="micro" class="micro footer-note" style="margin-top:1rem">Illustrative data · independent interface study</p></div>' +
         '<div><h3>Products</h3><div class="footer-links">' + products.map((p) => '<a href="' + p.href + '">' + p.label + '</a>').join('') + '</div></div>' +
         '<div><h3>Protocol</h3><div class="footer-links"><a href="#about">About Seer</a><a href="../home/index.html#protocol">Foundation</a><a href="../home/index.html#how">How a market works</a><a href="../app/index.html">Market explorer</a><a href="https://www.figma.com/design/cB6ZFMUkBwMBhHadLdiSmh/Seer-Branding?node-id=118-16652&amp;t=QMoBypRjlqvktMPr-1" target="_blank" rel="noopener noreferrer">Brand kit <span aria-hidden="true">↗</span></a></div></div>' +
@@ -893,10 +894,322 @@
   SEER.statusLabel = statusLabel;
   SEER.statusMarkup = statusMarkup;
 
+
+  /* ---------- Information Finance: shared content ---------- */
+  const askers = {
+    aurora: { name: 'Aurora Collective grants council', role: 'Funding decision', decision: 'Which Round 7 proposals to review and fund.' },
+    cedar: { name: 'Cedar treasury committee', role: 'Treasury decision', decision: 'Whether to approve the 24-month Round 7 budget.' },
+    athena: { name: 'Athena-7, an AI agent acting for Aurora', role: 'Agent review', decision: 'Which proposals deserve human attention first.' },
+    risk: { name: 'A protocol risk team', role: 'Exposure decision', decision: 'How much exposure to carry across DeFi assets.' },
+    reviewer: { name: 'Round 7 reviewers', role: 'Selection decision', decision: 'Which submissions to read first and shortlist.' }
+  };
+
+  const briefs = {
+    deep: {
+      asker: 'Aurora Collective funding team, Round 7',
+      question: 'What score will human evaluators give each of the 30 Round 7 proposals?',
+      prices: 'The score human evaluators are expected to give each proposal. Only 6 of 30 are selected for human review; the market resolves to the actual scores of that sample.',
+      use: 'Review the top 5 first, skim the next band, and give low-attention proposals a second look only if the price or the agent gap is surprising. The signal does not decide funding.',
+      why: 'Distilled human judgment: humans evaluate a sample, markets estimate the evaluators, and the sample keeps review cost bounded.',
+      funded: 'Aurora Collective · 120,000 USDC illustrative subsidy',
+      resolution: 'Reality.eth · Kleros backstop',
+      close: '2026-10-28',
+      response: 'Balanced · more liquidity makes the price move more slowly and harder to push.',
+      id: 'DEEP-R7', interface: 'Deep', outcomes: '30 proposals', price: 'Implied score, 0–5'
+    },
+    futarchy: {
+      asker: 'Aurora Collective council',
+      question: 'Should Open Grants Round 7 be funded with 2,000,000 USDC over 24 months?',
+      prices: 'The pass and reject branches price the chosen metric in two universes. The gap is the market-implied effect of passing, not a vote.',
+      use: 'Read the gap beside the vote timeline and the metric definition. The council votes on values; traders price beliefs. This council is advisory.',
+      why: 'Futarchy separates values from beliefs: the council chooses the metric, the two branches price what happens if the proposal passes or fails.',
+      funded: 'Aurora Collective · 2,000,000 USDC illustrative proposal',
+      resolution: 'Reality.eth · Kleros backstop',
+      close: '2026-10-27',
+      response: 'Steady · deep liquidity makes the gap slower and harder to move.',
+      id: 'AIP-42', interface: 'Futarchy', outcomes: 'Pass / reject', price: 'Treasury value in 90 days'
+    },
+    opportunity: {
+      asker: 'Round 7 reviewers',
+      question: 'Which 14 of the 30 Round 7 proposals will reviewers select?',
+      prices: 'The probability that each submission is selected. Prices across the 14 outcomes sum to 100%; a high price means attention is concentrating, not that a proposal is approved.',
+      use: 'Read the top of the allocation first, then the reviewer notes. Prices show where to look; reviewers keep the final selection.',
+      why: 'Many proposals arrive, including AI-written ones. A single multi-outcome market surfaces the likely shortlist without replacing review.',
+      funded: 'Aurora Collective · 240,000 USDC illustrative subsidy',
+      resolution: 'Reality.eth · Kleros backstop',
+      close: '2026-11-08',
+      response: 'Balanced · more liquidity makes the price move more slowly and harder to push.',
+      id: 'OPP-R7', interface: 'Opportunity', outcomes: '14 proposals', price: 'Selection probability'
+    },
+    risk: {
+      asker: 'A treasury or protocol risk team',
+      question: 'What is the market-implied probability of a defined loss event for each DeFi protocol?',
+      prices: 'The probability of a defined loss event within the selected horizon, with an uncertainty band. It is a market estimate, not a rating or advice.',
+      use: 'Compare protocols and horizons, then open one row for the underlying market, liquidity and derivation. The comparison informs exposure; it does not decide it.',
+      why: 'Separate yes/no markets distort small probabilities because capital locking dominates the price. One multi-outcome market shares capital across protocols.',
+      funded: 'Cedar treasury committee · 90,000 USDC illustrative subsidy',
+      resolution: 'Reality.eth · Kleros backstop',
+      close: '2026-11-18',
+      response: 'Steady · deep liquidity makes the price slower and harder to push.',
+      id: 'RISK-14', interface: 'Risk', outcomes: '14 protocols', price: 'Loss probability'
+    }
+  };
+  SEER.briefs = briefs;
+  SEER.askers = askers;
+
+  function briefHTML(cfg, compact) {
+    if (!cfg) return '';
+    const meta = [
+      ['Funded by', cfg.funded],
+      ['Resolution', cfg.resolution],
+      ['Closes', fmt.date(cfg.close) + ' · 21:00 UTC'],
+      ['Responsiveness', cfg.response]
+    ];
+    return '<section class="if-brief" aria-label="Signal Brief">' +
+      '<div class="if-brief-head"><div><span class="micro">Signal Brief · illustrative</span><h3>' + esc(cfg.interface || 'Market') + ' · ' + esc(cfg.id || '') + '</h3></div><span class="tag tag-violet">Ask view</span></div>' +
+      '<div class="sb-body"><div class="sb-grid">' +
+      '<div class="sb-row"><div class="sb-label">Asked by</div><div class="sb-value"><strong>' + esc(cfg.asker) + '</strong><br>' + esc(cfg.question) + '</div></div>' +
+      '<div class="sb-row"><div class="sb-label">Prices</div><div class="sb-value">' + esc(cfg.prices) + '</div></div>' +
+      '<div class="sb-row"><div class="sb-label">Use it to</div><div class="sb-value">' + esc(cfg.use) + '</div></div>' +
+      '<div class="sb-row"><div class="sb-label">Why this design</div><div class="sb-value">' + esc(cfg.why) + '</div></div>' +
+      '</div></div>' +
+      '<div class="sb-meta">' + meta.map(([k, v]) => '<div><span class="micro">' + esc(k) + '</span><b>' + esc(v) + '</b></div>').join('') + '</div>' +
+      (compact ? '<div class="sb-compact"><b>' + esc(cfg.asker) + '</b> asks: ' + esc(cfg.question) + '</div>' : '') +
+      '</section>';
+  }
+  SEER.briefHTML = briefHTML;
+
+  function forAgentsHTML(cfg) {
+    const payload = {
+      illustrative: true,
+      id: cfg.id, question: cfg.question, interface: cfg.interface,
+      outcomes: cfg.outcomes, price: cfg.price,
+      resolution: cfg.resolution, close: cfg.close, responsiveness: cfg.response
+    };
+    return '<details class="for-agents"><summary>For agents · copyable market summary</summary><pre>' + esc(JSON.stringify(payload, null, 2)) + '</pre><button class="btn btn-sm copy-agent" type="button">Copy JSON</button></details>';
+  }
+
+
+  function pageExtra(page) {
+    if (page === 'deep') return '<div class="if-guidance"><div class="if-note"><b>Funding team brief.</b> Review first: the top 5 by expected score. Skim: ranks 6–12. Low attention: the long tail, unless the agent forecast is far from the human one. Humans decide funding.<ul class="if-list"><li><b>01</b> Open-source MEV accounting · review first · clear public-goods case</li><li><b>07</b> Open evaluation datasets · skim · strong team, thin budget</li><li><b>28</b> Governance curriculum · low attention · price has not moved</li></ul></div><div class="if-note"><b>Agents and humans, separately.</b> Athena-7 forecasts 9.4% for proposal 01 against a human lane at 8.8%, a 0.6 point gap. Quill tracks 64% over 31 illustrative markets; humans are not blended into the agent number.<ul class="if-list"><li>Athena-7 · 31 markets · 64% hit rate</li><li>Quill · 27 markets · 61% hit rate</li><li>Human lane · 74 reviewers · not blended</li></ul></div></div><div class="if-guidance"><div class="if-note"><b>Micro-markets.</b> 6 of 30 proposals have under $1 of volume. Smallest $0.42, median $0.88. Cheap agent forecasts make these tiny markets worth running.</div><div class="if-note"><b>Combined forecast.</b> The sample forecast is a weighted view, not a vote. Responsiveness sets how fast the combination moves; more liquidity makes it slower and harder to push.</div></div>';
+    if (page === 'futarchy') return '<div class="if-note"><b>Vote on values, bet on beliefs.</b> The council chose the metric (values). Traders bet on what happens (beliefs). The market does not choose the metric.</div><div class="if-topline" style="margin:.8rem 0 .4rem"><div class="at-switch" role="group" aria-label="Asset or metric"><button type="button" data-fut-mode="asset">Asset</button><button type="button" data-fut-mode="metric" aria-pressed="true">Metric</button></div><div class="at-switch" role="group" aria-label="Futarchy mode"><button type="button" data-fut-advisory="advisory" aria-pressed="true">Advisory</button><button type="button" data-fut-advisory="full">Full futarchy</button></div></div><div class="if-note" id="fut-mode-copy"><b>Metric · 90-day treasury value.</b> It measures what the council wants, resolves after the measurement date, and needs a trusted measurement. The fictional AUR asset is the alternative: always priced and easy to settle, but also moved by unrelated token flows.</div><div class="if-note" id="fut-advisory-copy"><b>Advisory.</b> The council votes; the market informs. Full futarchy would let the market decide. This council is advisory.</div>';
+    if (page === 'opportunity') return '<div class="if-note"><b>Selection brief.</b> Many proposals arrive, including AI-written ones. Prices show where to look first; reviewers keep the final selection. <span class="tag">Standard market contract</span> No special contract is needed.</div><div class="if-guidance"><div class="if-note"><b>Notable move.</b> A submitter bought their own proposal up 4.2 points; counter-trades returned the price within 18 minutes. Time and size are illustrative.</div><div class="if-note"><b>For submitters.</b> A price is attention, not approval. It does not guarantee review, funding or a favourable decision. Self-buying is disclosed and can be counter-traded.</div></div>';
+    if (page === 'risk') return '<div class="if-guidance"><div class="if-note"><b>Why one pool of capital.</b> Separate yes/no markets make a 1% “yes” mostly reflect the cost of locking capital. One multi-outcome market across protocols shares capital; if two fail, each pays half. Independence is a stated simplification.</div><div class="if-note"><b>How a price becomes a probability.</b> 1. Read the outcome price after AMM impact. 2. Compare it with the uncertainty band. 3. Use it as one input, not a rating. Automated quoting lets bots post from the same estimates.</div></div><div class="if-note"><b>Exposure checker.</b> Compare up to four protocols by amount. This is a comparison, not a combined probability and not a rating.<div class="exposure-grid"><label>Aurelia <input type="number" data-exp="Aurelia" value="10000" min="0" step="1000" aria-label="Aurelia exposure"></label><label>Morrow <input type="number" data-exp="Morrow" value="5000" min="0" step="1000" aria-label="Morrow exposure"></label><label>Elysian <input type="number" data-exp="Elysian" value="2500" min="0" step="1000" aria-label="Elysian exposure"></label><label>Pallas <input type="number" data-exp="Pallas" value="0" min="0" step="1000" aria-label="Pallas exposure"></label></div><div class="exposure-out" id="exposure-out">Enter amounts to compare weighted estimates.</div></div>';
+    return '';
+  }
+
+  function setView(view, rerender) {
+    const v = view === 'trade' ? 'trade' : 'ask';
+    document.body.classList.toggle('view-ask', v === 'ask');
+    document.body.classList.toggle('view-trade', v === 'trade');
+    try { localStorage.setItem('seer-view-' + (document.body.dataset.page || 'home'), v); } catch (e) { /* ignore */ }
+    $$('.at-switch button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.at === v)));
+    if (rerender) rerender(v);
+  }
+  SEER.setView = setView;
+  SEER.currentView = () => (document.body.classList.contains('view-trade') ? 'trade' : 'ask');
+
+  function mountPageBrief(page, cfg) {
+    if (!cfg || page === 'home') return;
+    const main = document.getElementById('main');
+    if (!main) return;
+    const hero = main.querySelector('section');
+    const anchor = hero ? hero.nextSibling : main.firstChild;
+    const section = document.createElement('section');
+    section.className = 'if-surface';
+    section.innerHTML = '<div class="wrap"><div class="if-topline"><div><span class="micro">Information Finance · Ask first</span><h2>Who is asking, and what is this price for?</h2></div><div class="at-switch" role="group" aria-label="Ask or trade view"><button type="button" data-at="ask">Ask</button><button type="button" data-at="trade">Trade</button></div></div>' +
+      briefHTML(cfg, true) + '<div class="if-ask-only">' + pageExtra(page) + '<div class="if-guidance"><div class="if-note"><b>How to read it.</b> The price is a market estimate, not a verdict. Start with who asked, then the question, then the confidence band.</div><div class="if-note"><b>Resolution trail.</b> ' + esc(cfg.resolution) + ' resolves against the named public source; disputes escalate to Kleros. Closes ' + esc(fmt.date(cfg.close)) + '.</div></div>' + forAgentsHTML(cfg) + '</div><div class="if-trade-slot" id="if-trade-slot"></div></div>';
+    main.insertBefore(section, anchor || main.firstChild);
+    section.querySelectorAll('[data-at]').forEach((b) => b.addEventListener('click', () => setView(b.dataset.at)));
+    const copy = section.querySelector('.copy-agent');
+    if (copy) copy.addEventListener('click', async () => {
+      const text = section.querySelector('.for-agents pre').textContent;
+      try { await navigator.clipboard.writeText(text); toast('Copied', 'Machine-readable market summary copied.'); } catch (e) { toast('Copy failed', 'Select the JSON and copy it manually.'); }
+    });
+    if (page === 'futarchy') {
+      const copy = section.querySelector('#fut-mode-copy');
+      section.querySelectorAll('[data-fut-mode]').forEach((b) => b.addEventListener('click', () => {
+        section.querySelectorAll('[data-fut-mode]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        copy.innerHTML = b.dataset.futMode === 'asset' ? '<b>Asset · fictional AUR token.</b> It prices at 62¢ if passed and 38¢ if rejected, a 24 point gap. A price is always available and easy to settle, but unrelated token moves also move it.' : '<b>Metric · 90-day treasury value.</b> It measures what the council wants, resolves after the measurement date, and needs a trusted measurement. The fictional AUR asset is the alternative: always priced and easy to settle, but also moved by unrelated token flows.';
+      }));
+      const adv = section.querySelector('#fut-advisory-copy');
+      section.querySelectorAll('[data-fut-advisory]').forEach((b) => b.addEventListener('click', () => {
+        section.querySelectorAll('[data-fut-advisory]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        adv.innerHTML = b.dataset.futAdvisory === 'full' ? '<b>Full futarchy.</b> The market decides whether the proposal passes. That is a different governance choice, not the current council.' : '<b>Advisory.</b> The council votes; the market informs. Full futarchy would let the market decide. This council is advisory.';
+      }));
+    }
+    const exp = section.querySelectorAll('[data-exp]');
+    if (exp.length && SEER.risk) {
+      const out = section.querySelector('#exposure-out');
+      const paintExp = () => {
+        let total = 0, weighted = 0; const parts = [];
+        exp.forEach((input) => {
+          const amount = Number(input.value) || 0;
+          const p = SEER.risk.protocols.find((x) => x.name === input.dataset.exp);
+          if (!p || !amount) return;
+          const v = p.values.exploit[90];
+          total += amount; weighted += amount * v; parts.push(p.name + ' ' + v.toFixed(1) + '%');
+        });
+        if (!total) { out.textContent = 'Enter amounts to compare weighted estimates.'; return; }
+        out.innerHTML = 'Weighted comparison: <b>' + (weighted / total).toFixed(2) + '%</b> implied exploit estimate across ' + fmt.usd(total, 0) + ' exposure.<br><span class="micro">' + parts.join(' · ') + ' · 90-day horizon · illustrative, not a combined probability.</span>';
+      };
+      exp.forEach((i) => i.addEventListener('input', paintExp));
+      paintExp();
+    }
+    const tradeSlot = section.querySelector('#if-trade-slot');
+    if (tradeSlot) {
+      tradeSlot.classList.add('if-trade-only');
+      let tr = null;
+      if (page === 'risk' && SEER.risk) {
+        const p0 = SEER.risk.protocols[0];
+        tr = { outcomes: [{ id: 'yes', label: 'Yes · defined loss event', price: p0.values.exploit[90] / 100 }, { id: 'no', label: 'No', price: 1 - p0.values.exploit[90] / 100 }], depth: p0.liquidity, price: p0.values.exploit[90] / 100 };
+        const ticket = document.createElement('div'); ticket.id = 'risk-ticket'; tradeSlot.appendChild(ticket);
+        tradeTicket(ticket, { title: 'Price a risk estimate', subtitle: 'Aurelia · 90-day exploit · illustrative', outcomes: tr.outcomes, depth: tr.depth, note: 'A preview quote against a shared risk pool. Not a rating or advice.' });
+      } else if (page === 'futarchy') {
+        tr = { outcomes: [{ id: 'pass', label: 'Pass universe', price: SEER.futarchy.passPrice }, { id: 'fail', label: 'Reject universe', price: SEER.futarchy.failPrice }], depth: SEER.futarchy.passLiquidity, price: SEER.futarchy.passPrice };
+      } else if (page === 'opportunity') {
+        tr = { outcomes: SEER.opportunity.submissions.slice(0, 4).map((x) => ({ id: x.id, label: x.title, price: x.price })), depth: SEER.opportunity.liquidity, price: SEER.opportunity.submissions[0].price };
+      } else if (page === 'deep') {
+        tr = { outcomes: [{ id: 'review', label: 'Selected for review', price: SEER.proposals[0].prob }, { id: 'tail', label: 'Long tail', price: 1 - SEER.proposals[0].prob }], depth: 420000, price: SEER.proposals[0].prob };
+      }
+      if (tr) { const desk = document.createElement('div'); tradeSlot.appendChild(desk); agentDesk(desk, { outcomes: tr.outcomes, depth: tr.depth, price: tr.price }); }
+    }
+    setView(SEER.currentView());
+    return section;
+  }
+  SEER.mountPageBrief = mountPageBrief;
+
+
+  /* ---------- Agent desk (browser simulation, no funds) ---------- */
+  function agentDesk(host, cfg) {
+    if (!host) return;
+    const outcomes = cfg.outcomes || [{ id: 'yes', label: 'Yes', price: cfg.price || .5 }];
+    let outcome = outcomes[0];
+    let belief = Math.round((outcome.price + .08) * 100);
+    let confidence = 'medium';
+    let budget = 250;
+    let maxImpact = 2;
+    let style = 'balanced';
+    let timer = null, running = false, paused = false;
+    let spent = 0, shares = 0, avgSum = 0, fills = 0;
+    const slices = () => style === 'patient' ? 10 : style === 'fast' ? 4 : 6;
+    const quote = (amount, price, depth) => {
+      const impact = amount / (depth + amount);
+      return { avg: clamp(price * (1 + impact / 2), .001, .999), impact: impact * 100 };
+    };
+    const plan = () => {
+      const n = slices();
+      const per = budget / n;
+      const rows = [];
+      let p = outcome.price;
+      for (let i = 0; i < n; i++) {
+        const q = quote(per, p, cfg.depth || 500000);
+        rows.push({ i: i + 1, size: per, price: q.avg, impact: q.impact });
+        p = clamp(p + q.impact / 100 * .45, .01, .99);
+      }
+      return rows;
+    };
+    function shell() {
+      host.innerHTML = '<section class="agent-desk" aria-label="Agent trading simulation"><div class="agent-desk-head"><span class="micro">Agent desk · illustrative</span><h3>Let an agent trade this for me</h3><p class="agent-safety">Simulation. No funds move. A real agent would need your wallet and explicit approval for every limit.</p></div>' +
+        '<div class="agent-body">' +
+        '<div class="agent-field"><label for="ad-outcome">Outcome</label><select id="ad-outcome">' + outcomes.map((o) => '<option value="' + esc(o.id || o.label) + '"' + (o === outcome ? ' selected' : '') + '>' + esc(o.label) + ' · ' + fmt.pct(o.price) + '</option>').join('') + '</select></div>' +
+        '<div class="agent-field"><label for="ad-belief">Your belief · <b id="ad-belief-v">' + belief + '%</b></label><input id="ad-belief" type="range" min="1" max="99" value="' + belief + '"></div>' +
+        '<div class="agent-field"><label for="ad-confidence">Confidence</label><select id="ad-confidence"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>' +
+        '<div class="agent-field"><label for="ad-budget">Budget · USDC</label><input id="ad-budget" type="number" min="10" max="10000" step="10" value="' + budget + '"></div>' +
+        '<div class="agent-field"><label for="ad-impact">Maximum price impact · %</label><input id="ad-impact" type="number" min="0.1" max="20" step="0.1" value="' + maxImpact + '"></div>' +
+        '<div class="agent-field"><label for="ad-style">Style</label><select id="ad-style"><option value="patient">Patient · many small slices</option><option value="balanced" selected>Balanced</option><option value="fast">Fast · fewer slices</option></select></div>' +
+        '<div class="agent-plan" id="ad-plan"></div>' +
+        '<div class="agent-actions"><button class="btn btn-sm" type="button" id="ad-start">Start simulation</button><button class="btn btn-sm btn-ghost" type="button" id="ad-pause" hidden>Pause</button><button class="btn btn-sm btn-ghost" type="button" id="ad-stop" hidden>Stop</button></div>' +
+        '<div class="agent-summary" id="ad-summary"></div>' +
+        '<div class="agent-log" id="ad-log" aria-live="polite"></div>' +
+        '</div></section>';
+      paintPlan();
+      host.querySelector('#ad-outcome').addEventListener('change', (e) => { outcome = outcomes.find((o) => (o.id || o.label) === e.target.value) || outcomes[0]; belief = Math.round((outcome.price + .08) * 100); host.querySelector('#ad-belief').value = belief; host.querySelector('#ad-belief-v').textContent = belief + '%'; paintPlan(); });
+      host.querySelector('#ad-belief').addEventListener('input', (e) => { belief = Number(e.target.value); host.querySelector('#ad-belief-v').textContent = belief + '%'; paintPlan(); });
+      host.querySelector('#ad-confidence').addEventListener('change', (e) => { confidence = e.target.value; paintPlan(); });
+      host.querySelector('#ad-budget').addEventListener('input', (e) => { budget = clamp(Number(e.target.value) || 0, 10, 10000); paintPlan(); });
+      host.querySelector('#ad-impact').addEventListener('input', (e) => { maxImpact = clamp(Number(e.target.value) || .1, .1, 20); paintPlan(); });
+      host.querySelector('#ad-style').addEventListener('change', (e) => { style = e.target.value; paintPlan(); });
+      host.querySelector('#ad-start').addEventListener('click', start);
+      host.querySelector('#ad-pause').addEventListener('click', () => { paused = !paused; host.querySelector('#ad-pause').textContent = paused ? 'Resume' : 'Pause'; if (!paused) tick(); });
+      host.querySelector('#ad-stop').addEventListener('click', stop);
+    }
+    function paintPlan() {
+      const rows = plan();
+      const total = rows.reduce((a, r) => a + r.size, 0);
+      const avg = rows.reduce((a, r) => a + r.price * r.size, 0) / total;
+      const max = Math.max(...rows.map((r) => r.impact));
+      host.querySelector('#ad-plan').innerHTML = '<div class="micro">Plan before anything runs</div><table><thead><tr><th>Slice</th><th>Size</th><th>Expected price</th><th>Impact</th></tr></thead><tbody>' + rows.map((r) => '<tr><td>' + r.i + '</td><td>' + fmt.usd(r.size, 0) + '</td><td>' + fmt.pct(r.price) + '</td><td>' + r.impact.toFixed(2) + '%</td></tr>').join('') + '</tbody></table><p class="micro" style="margin:.55rem 0 0">Expected average ' + fmt.pct(avg) + ' · ' + rows.length + ' slices · stops above ' + maxImpact + '% impact per slice.</p><p class="micro" style="margin:.35rem 0 0">Buy below ' + fmt.pct(Math.max(0, belief / 100 - (confidence === 'high' ? .02 : confidence === 'low' ? .06 : .04))) + '. Sell above ' + fmt.pct(Math.min(1, belief / 100 + (confidence === 'high' ? .02 : confidence === 'low' ? .06 : .04))) + '. Will not exceed the budget, will not buy above your maximum impact, stops when the market closes or resolves.</p>';
+      if (max > maxImpact) host.querySelector('#ad-plan').insertAdjacentHTML('beforeend', '<p class="agent-safety">Some planned slices exceed your impact limit. The simulation skips them.</p>');
+    }
+    function addLog(action, size, price, pos) {
+      const log = host.querySelector('#ad-log');
+      const el = document.createElement('div');
+      el.innerHTML = '<span>' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '</span><span>' + action + '</span><span>' + fmt.usd(size, 0) + ' @ ' + fmt.pct(price) + '</span><span>' + fmt.num(pos, 2) + ' sh</span>';
+      log.prepend(el);
+    }
+    function start() {
+      if (running && !paused) return;
+      if (!running) { spent = 0; shares = 0; avgSum = 0; fills = 0; running = true; paused = false; host.querySelector('#ad-log').innerHTML = ''; host.querySelector('#ad-start').hidden = true; host.querySelector('#ad-pause').hidden = false; host.querySelector('#ad-stop').hidden = false; }
+      tick();
+    }
+    function tick() {
+      if (!running || paused) return;
+      const rows = plan();
+      const idx = fills;
+      if (idx >= rows.length) return finish();
+      const r = rows[idx];
+      const margin = confidence === 'high' ? .02 : confidence === 'low' ? .06 : .04;
+      if (outcome.price > Math.min(.99, belief / 100 + margin) && shares > 0) {
+        const sellShares = Math.min(shares, r.size / outcome.price);
+        shares -= sellShares; spent -= sellShares * outcome.price; avgSum -= outcome.price * sellShares; fills++;
+        addLog('Sell', sellShares * outcome.price, outcome.price, shares);
+        host.querySelector('#ad-summary').innerHTML = 'Running · sold into strength · position <b>' + fmt.num(shares, 2) + '</b> shares.';
+        timer = setTimeout(tick, 220); return;
+      }
+      if (r.impact > maxImpact) { fills++; addLog('Skip', r.size, r.price, shares); timer = setTimeout(tick, 160); return; }
+      if (outcome.price > belief / 100 - margin) { fills++; addLog('Skip', r.size, outcome.price, shares); timer = setTimeout(tick, 160); return; }
+      const q = quote(r.size, outcome.price, cfg.depth || 500000);
+      const fill = r.size / q.avg;
+      spent += r.size; shares += fill; avgSum += q.avg * fill; fills++;
+      addLog('Buy', r.size, q.avg, shares);
+      outcome.price = clamp(outcome.price + q.impact / 100 * .55, .01, .99);
+      host.querySelector('#ad-summary').innerHTML = 'Running · spent <b>' + fmt.usd(spent, 0) + '</b> · position <b>' + fmt.num(shares, 2) + '</b> shares · average <b>' + fmt.pct(avgSum / shares) + '</b>';
+      timer = setTimeout(tick, 260);
+    }
+    function finish() {
+      running = false;
+      host.querySelector('#ad-start').hidden = false;
+      host.querySelector('#ad-start').textContent = 'Run again';
+      host.querySelector('#ad-pause').hidden = true;
+      host.querySelector('#ad-stop').hidden = true;
+      const value = shares * outcome.price;
+      host.querySelector('#ad-summary').innerHTML = 'Complete · spent <b>' + fmt.usd(spent, 0) + '</b> · average <b>' + fmt.pct(avgSum / Math.max(shares, 1)) + '</b> · position <b>' + fmt.num(shares, 2) + '</b> shares · worth <b>' + fmt.usd(value, 0) + '</b> at the current price.';
+      toast('Simulation complete', 'No funds moved. The plan used the same quote function as the ticket.');
+    }
+    function stop() {
+      running = false; paused = false;
+      if (timer) clearTimeout(timer);
+      host.querySelector('#ad-start').hidden = false;
+      host.querySelector('#ad-start').textContent = 'Run again';
+      host.querySelector('#ad-pause').hidden = true;
+      host.querySelector('#ad-stop').hidden = true;
+      host.querySelector('#ad-summary').innerHTML = 'Stopped · spent <b>' + fmt.usd(spent, 0) + '</b> · position <b>' + fmt.num(shares, 2) + '</b> shares.';
+    }
+    shell();
+  }
+  SEER.agentDesk = agentDesk;
+
   /* ---------- Boot ---------- */
   function boot() {
     buildShell();
     initReveal();
+    let savedView = 'ask';
+    try { const v = localStorage.getItem('seer-view-' + (document.body.dataset.page || 'home')); if (v === 'trade' || v === 'ask') savedView = v; } catch (e) { /* ignore */ }
+    document.body.classList.toggle('view-ask', savedView === 'ask');
+    document.body.classList.toggle('view-trade', savedView === 'trade');
+    const page = document.body.dataset.page;
+    if (briefs[page]) mountPageBrief(page, briefs[page]);
     // Re-init when the document is fully parsed.
     setTimeout(initReveal, 50);
   }

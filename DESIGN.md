@@ -128,3 +128,35 @@ Charts and the Deep dot field measure their container, use a 1:1 viewBox and red
 ### G6. Interaction, accessibility and performance
 
 Dark mode is the default with a persistent toggle on every page. The six-product header is the only sticky element; the App filter bar scrolls away. Mobile uses a scrollable product rail. Launch app is absent on the App page, including mobile. Touch targets are at least 44px on phone; focus rings are 2px with offset; chart tooltips are keyboard reachable; reduced-motion is respected; every page has one h1 and proper landmarks. The centre hairline behind prose was removed. Evidence: 390/768/1280/1440/1920 checks show no sideways scroll; focus ring visible; 44px targets; static page weight about 238 KB on Home and 184 KB on App.
+
+
+## 7. Information Finance direction
+
+The build starts from the asker, not the venue. Every market, agent and flow shown here is illustrative; this document makes no claim that a feature is live in Seer today. Every surface leads with **who is asking**, what number the market produces, how to use it and why that market type fits. The shared **Signal Brief** carries ASKED BY, PRICES, USE IT TO and WHY THIS DESIGN, plus funding, resolution source, close date and a responsiveness band. It is the same component on all six pages and in the App detail; the content changes, the structure does not.
+
+The **Ask | Trade** switch makes the two-sided marketplace explicit. Ask is the default: the brief, a plain-language reading guide and the resolution trail, with no trade ticket. Trade reveals the ticket and order details and collapses the brief to one line. The choice is remembered per page in localStorage and is keyboard reachable.
+
+The **App** becomes the general explorer: grouped search over markets, askers, agents and resolutions; five real tables; an asker and interface badge on every market card; and a detail view with breadcrumb, Signal Brief, overview, activity, holders, resolution and related markets. The **Ask a question** drawer is a four-step preview only and submits nothing. The **agent desk** is an in-browser simulation with no funds and no wallet. Planned slices use the same quote and impact function as the ticket, and the safety line is repeated at the top.
+
+**Deep** resolves to a sample: 6 of 30 proposals go to human evaluation, and the market estimates the evaluators' scores. **Futarchy** separates values from beliefs: the council chooses the metric, the pass and reject branches price it in two universes, and an Asset or Metric reading is offered with an Advisory or Full futarchy explainer. **Opportunity** turns selection into one multi-outcome market: prices show where review attention should go and reviewers keep the final choice. **Risk** explains why one shared pool beats separate yes/no markets; a price becomes a probability in three steps, automated quoting is stated as a design possibility, and the exposure checker compares amounts without combining them into a rating.
+
+**Rays.** The original artwork converges to the right and fans left. The interface reverses it with one shared property: `--rays-flip:-1` on the hero. To revert, set `--rays-flip:1`. No page has a separate direction rule.
+
+### Departures log, one line each
+
+- Contrast: muted text is `#86868e` in dark and `#6d6d78` in light; small violet text on dark is `#a98af5`. Measured against AA, not eyeballed.
+- Type: rem scale rises to 112.5% at 1024, 125% at 1440 and 137.5% at 1920; desktop row and label floors are larger than the kit.
+- Content: markets, proposals, askers and protocols are fictional; one Open Grants Round 7 and one protocol set run through the pages.
+- Status: open, resolving, closing and resolved share one colour system; red is reserved for a live state.
+- Layout: 90rem container, shared stat strips, equal gaps and relative asset paths.
+- Accessibility: 44px phone targets, visible focus, keyboard chart tooltips, reduced motion and one h1 per page.
+- Signal Brief: new shared component; the kit has no asker-led market summary.
+- Ask | Trade: new shared switch; the kit has no two-sided reading mode.
+- Agent desk: new in-browser simulation; labelled illustrative, no funds or wallet.
+- App explorer: new grouped search, five tables, detail tabs and an ask-question preview.
+- Deep: new sample-review brief, agent versus human lane and micro-market stats.
+- Futarchy: new Asset/Metric and Advisory/Full explainers.
+- Opportunity: new selection brief, notable-move note and submitter disclosure.
+- Risk: new shared-pool explainer, probability steps and exposure checker.
+- Rays: mirrored with `--rays-flip:-1`; one line reverts it.
+- Logo: the supplied lockup is raster art inside an SVG wrapper; the exact extracted lockup remains in use rather than a redrawn vector.
